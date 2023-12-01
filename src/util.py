@@ -1,6 +1,12 @@
 import aocd
+import numpy as np
 
-CURRENT_YEAR: int = 2022
+CURRENT_YEAR: int = 2023
+
+UP = np.array([0, 1])
+DOWN = np.array([0, -1])
+LEFT = np.array([-1, 0])
+RIGHT = np.array([1, 0])
 
 
 def get(day: int, year: int = CURRENT_YEAR):
@@ -49,3 +55,31 @@ def split_on_colon(s: str) -> [str]:
 
 def as_list_of_colon_split(s: [str]) -> [[str]]:
     return list(map(lambda x: split_on_colon(x), s))
+
+
+def adjacent_directions() -> (int, int):
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            if dx != 0 or dy != 0:
+                yield dx, dy
+    return
+
+def cardinal_directions() -> (int, int):
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            if (dx == 0 or dy == 0) and not (dx == dy):
+                yield dx, dy
+    return
+
+def adjacent_directions_3d() -> (int, int, int):
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            for dz in range(-1, 2):
+                if not (dx == 0 and dy == 0 and dz == 0):
+                    yield dx, dy, dz
+    return
+
+def rotate(point: np.ndarray, degrees: float):
+    rad = np.deg2rad(degrees)
+    rotation: np.ndarray = np.array([[np.cos(rad), -np.sin(rad)], [np.sin(rad), np.cos(rad)]]) @ point
+    return rotation.astype(point.dtype)

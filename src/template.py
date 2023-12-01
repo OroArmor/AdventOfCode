@@ -1,4 +1,5 @@
 import util
+from util import *
 import numpy as np
 
 test_data: str = \
@@ -20,7 +21,7 @@ def parse(data: str):
 
 
 def main():
-    data: str = util.get(1, 2022)
+    data: str = util.get(1, 2023)
     # data = test_data
     input = parse(data)
     print(task1(input))
