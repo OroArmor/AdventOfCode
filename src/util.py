@@ -14,7 +14,7 @@ def get(day: int, year: int = CURRENT_YEAR):
 
 
 def list_as_ints(ints: [str]):
-    return list(map(lambda x: int(x), ints))
+    return list(map(lambda x: int(x), [i.strip() for i in ints if i.strip().isnumeric()]))
 
 
 def as_lines(s: str) -> [str]:
@@ -48,6 +48,8 @@ def as_csv_lines_of_ints(s: str) -> [[int]]:
 def as_ssv(s: str) -> [str]:
     return s.replace("\n", " ").split(" ")
 
+def as_ssv_ints(s: str) -> [int]:
+    return list_as_ints(s.replace("\n", " ").split(" "))
 
 def split_on_colon(s: str) -> [str]:
     return s.split(":")
