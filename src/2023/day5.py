@@ -49,7 +49,7 @@ def task1(input):
         for seed in seeds:
             res = seed
             for m_range in map:
-                if 0 <= seed - m_range[1] < m_range[2]:
+                if seed in Range(m_range[1], m_range[1] + m_range[2]):
                     res = seed - m_range[1] + m_range[0]
             next.append(res)
 
@@ -63,42 +63,32 @@ def task2(input):
 
     seeds2 = []
     for i in range(0, len(seeds), 2):
-        seeds2.append((seeds[i], seeds[i] + seeds[i + 1] - 1))
+        seeds2.append(Range(seeds[i], seeds[i] + seeds[i + 1]))
     seeds = seeds2
 
     for i, map in enumerate(maps):
         next = []
 
-        for seed in seeds:
+        for seeds_to_check in seeds:
             res = []
-            for m_range in map:
-                if 0 <= seed[0] - m_range[1] < m_range[2]:  # lower end is within the range
-                    if 0 <= seed[1] - m_range[1] < m_range[2]: # upper end is within the range
-                        # map whole seed
-                        res.append((seed[0] - m_range[1] + m_range[0], seed[1] - m_range[1] + m_range[0]))
-                        seed = (0, 0)
-                    else:
-                        # map low to range top, keep range top to high as seed
-                        res.append((seed[0] - m_range[1] + m_range[0], m_range[0] + m_range[2] - 1))
-                        seed = (m_range[2] + m_range[1], seed[1])
+            seeds_to_check = [seeds_to_check]
+            while len(seeds_to_check) > 0:
+                seed = seeds_to_check.pop()
+                for m_range in map:
+                    r = Range(m_range[1], m_range[1] + m_range[2])
+                    to_map, remaining = seed.intersection(r)
+
+                    if to_map is not None:
+                        res.append(Range(to_map.start - m_range[1] + m_range[0], to_map.end - m_range[1] + m_range[0]))
+                        seeds_to_check += remaining
+                        break
                 else:
-                    if 0 <= seed[1] - m_range[1] < m_range[2]: # upper end is within the range
-                        # keep low to range bottom, map range bottom to high as seed
-                        res.append((m_range[0], seed[1] - m_range[1] + m_range[0]))
-                        seed = (seed[0], m_range[1] - 1)
-                    else:
-                        if seed[0] < m_range[1] and m_range[1] + m_range[2] < seed[1]: # completely enclosed
-                            # res.append((seed[0] - m_range[1] + m_range[0], seed[0] + m_range[2] - m_range[1] + m_range[0]))
-                            # res.append((seed[1] - m_range[2] - m_range[1] + m_range[0], seed[1] - m_range[1] + m_range[0]))
-                            # seed = (seed[0] + m_range[2] + 1, seed[1] - m_range[2])
-                            print("mid")
-            if len(res) == 0 or seed != (0, 0):
-                res += [seed]
+                    res.append(seed)
 
             next += res
         seeds = next
 
-    return min([seed[0] for seed in seeds])
+    return min(seeds).start
 
 def parse(data: str):
     lines = util.as_double_lines(data)

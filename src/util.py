@@ -1,5 +1,6 @@
 import aocd
 import numpy as np
+from lib.range_util import *
 
 CURRENT_YEAR: int = 2023
 
