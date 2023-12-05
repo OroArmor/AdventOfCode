@@ -17,7 +17,6 @@ def task1(input):
     sum = 0
     for card in input:
         matches = 0
-
         for win in card[0]:
             if win in card[1]:
                 matches += 1
@@ -32,11 +31,9 @@ def task2(input):
     matches = []
     for card in input:
         match = 0
-
         for win in card[0]:
             if win in card[1]:
                 match += 1
-
         matches.append(match)
 
     counts = [0 for _ in range(len(matches))]
