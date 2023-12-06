@@ -48,9 +48,9 @@ def task1(input):
 
         for seed in seeds:
             res = seed
-            for m_range in map:
-                if seed in Range(m_range[1], m_range[1] + m_range[2]):
-                    res = seed - m_range[1] + m_range[0]
+            for dest, src, size in map:
+                if seed in Range(src, src + size):
+                    res = seed - src + dest
             next.append(res)
 
         seeds = next
@@ -61,10 +61,7 @@ def task1(input):
 def task2(input):
     seeds, maps = input
 
-    seeds2 = []
-    for i in range(0, len(seeds), 2):
-        seeds2.append(Range(seeds[i], seeds[i] + seeds[i + 1]))
-    seeds = seeds2
+    seeds = [Range(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
 
     for i, map in enumerate(maps):
         next = []
@@ -74,12 +71,12 @@ def task2(input):
             seeds_to_check = [seeds_to_check]
             while len(seeds_to_check) > 0:
                 seed = seeds_to_check.pop()
-                for m_range in map:
-                    r = Range(m_range[1], m_range[1] + m_range[2])
+                for dest, src, size in map:
+                    r = Range(src, src + size)
                     to_map, remaining = seed.intersection(r)
 
                     if to_map is not None:
-                        res.append(Range(to_map.start - m_range[1] + m_range[0], to_map.end - m_range[1] + m_range[0]))
+                        res.append(Range(to_map.start - src + dest, to_map.end - src + dest))
                         seeds_to_check += remaining
                         break
                 else:
@@ -89,6 +86,7 @@ def task2(input):
         seeds = next
 
     return min(seeds).start
+
 
 def parse(data: str):
     lines = util.as_double_lines(data)

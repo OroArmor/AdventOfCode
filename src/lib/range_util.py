@@ -3,7 +3,7 @@ from typing import Tuple, List
 
 class Range:
 
-    def __init__(self, start: int, end: int, inclusive:bool = False):
+    def __init__(self, start: int, end: int, inclusive: bool = False):
         if inclusive and start > end:
             raise AssertionError(f"start: {start} is > end: {end}")
         if start >= end:
@@ -65,6 +65,7 @@ class Range:
     def __eq__(self, other):
         return self.start == other.start and self.end == other.end
 
+
 if __name__ == "__main__":
     test = Range(0, 100)
 
@@ -81,3 +82,5 @@ if __name__ == "__main__":
 
     print(test < Range(-50, 50))
     print(test < Range(50, 150))
+    inc = Range(0, 100, True)
+    print(inc, len(inc))
