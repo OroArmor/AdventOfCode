@@ -12,7 +12,7 @@ def task1(input):
 
     prod = 1
     for race in range(len(input[0])):
-        # x * (t - x) >= dist
+        # x * (t - x) > dist
         roots = np.roots([-1, input[0][race], -input[1][race]])
         tot = int(np.floor(max(roots) - 0.0001) - np.ceil(min(roots) + 0.0001) + 1)
         prod *= tot
