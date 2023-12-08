@@ -14,7 +14,7 @@ class Card:
     def __init__(self, data):
         self.hand: str = data[0]
         self.bet = int(data[1])
-        self.order = "AKQT98765432J"
+        self.order = "AKQJT98765432"
 
     def type(self):
         cards = set(self.hand)
