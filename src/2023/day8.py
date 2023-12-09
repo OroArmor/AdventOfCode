@@ -53,8 +53,7 @@ def task2(input):
 
         s.append(steps)
 
-    s = np.array(s).astype("longlong")
-    return np.lcm.reduce(s)
+    return lcm(s)
 
 
 def parse(data: str):

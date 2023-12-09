@@ -1,3 +1,6 @@
+import typing
+from functools import reduce
+
 import aocd
 import numpy as np
 from lib.range_util import *
@@ -49,8 +52,10 @@ def as_csv_lines_of_ints(s: str) -> [[int]]:
 def as_ssv(s: str) -> [str]:
     return s.replace("\n", " ").split(" ")
 
+
 def as_ssv_ints(s: str) -> [int]:
     return list_as_ints(s.replace("\n", " ").split(" "))
+
 
 def split_on_colon(s: str) -> [str]:
     return s.split(":")
@@ -67,12 +72,14 @@ def adjacent_directions() -> (int, int):
                 yield dx, dy
     return
 
+
 def cardinal_directions() -> (int, int):
     for dx in range(-1, 2):
         for dy in range(-1, 2):
             if (dx == 0 or dy == 0) and not (dx == dy):
                 yield dx, dy
     return
+
 
 def adjacent_directions_3d() -> (int, int, int):
     for dx in range(-1, 2):
@@ -82,7 +89,51 @@ def adjacent_directions_3d() -> (int, int, int):
                     yield dx, dy, dz
     return
 
+
 def rotate(point: np.ndarray, degrees: float):
     rad = np.deg2rad(degrees)
     rotation: np.ndarray = np.array([[np.cos(rad), -np.sin(rad)], [np.sin(rad), np.cos(rad)]]) @ point
     return rotation.astype(point.dtype)
+
+
+def gcd(a: int | List[int], b: int | None = None) -> int:
+    if isinstance(a, list):
+        return reduce(gcd, a, 1)
+    if b is None:
+        raise ValueError('b must be set for non-lists!')
+
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def lcm(a: int | List[int], b: int | None = None) -> int:
+    if isinstance(a, list):
+        return reduce(lcm, a, 1)
+    if b is None:
+        raise ValueError('b must be set for non-lists!')
+
+    return a * (b // gcd(a, b))
+
+
+def inv_modulo(value: int, modulo: int) -> int:
+    modulo0 = modulo
+    x0, x1 = 0, 1
+
+    if modulo == 1:
+        return 0
+
+    while value > 1:
+        quotient = value // modulo
+        value, modulo = modulo, value % modulo
+        x0, x1 = x1 - quotient * x0, x0
+
+    if x1 < 0:
+        x1 += modulo0
+
+    return x1
+
+
+def chinese_remainder_theorem(divisors: [int], remainders: [int]) -> int:
+    product = reduce(int.__mul__, divisors, 1)
+    return sum((product // divisor * inv_modulo(product // divisor, divisor) * remainder for divisor, remainder in zip(divisors, remainders))) % product
