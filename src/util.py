@@ -1,5 +1,5 @@
 import typing
-from functools import reduce
+from functools import *
 
 import aocd
 import numpy as np
@@ -18,7 +18,7 @@ def get(day: int, year: int = CURRENT_YEAR):
 
 
 def list_as_ints(ints: [str]):
-    return list(map(lambda x: int(x), [i.strip() for i in ints if i.strip().isnumeric()]))
+    return list(map(lambda x: int(x), [i.strip() for i in ints if i.strip()]))
 
 
 def as_lines(s: str) -> [str]:
