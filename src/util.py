@@ -73,11 +73,11 @@ def adjacent_directions() -> (int, int):
     return
 
 
-def cardinal_directions() -> (int, int):
+def cardinal_directions() -> np.ndarray:
     for dx in range(-1, 2):
         for dy in range(-1, 2):
             if (dx == 0 or dy == 0) and not (dx == dy):
-                yield dx, dy
+                yield np.array([dx, dy])
     return
 
 
