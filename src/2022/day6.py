@@ -20,11 +20,13 @@ def task2(input):
             return i + 14
     return -1
 
+def parse(data: str):
+    return data
 
 def main():
     data: str = util.get(6, 2022)
     # data = test_data
-    input = data
+    input = parse(data)
     print(task1(input))
     print(task2(input))
 

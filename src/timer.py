@@ -1,4 +1,6 @@
 import sys
+from copy import deepcopy
+
 import util
 from time import time
 from importlib import import_module
@@ -23,16 +25,19 @@ def time_day(year, day):
     i = 0
     t = time()
     while i < 1000 and (time() - t) < 60:
-        day_module.task1(parsed)
+        day_module.task1(deepcopy(parsed))
         i += 1
     task1_time = (time() - t) / i
 
-    i = 0
-    t = time()
-    while i < 1000 and (time() - t) < 60:
-        day_module.task2(parsed)
-        i += 1
-    task2_time = (time() - t) / i
+    if day != 25:
+        i = 0
+        t = time()
+        while i < 1000 and (time() - t) < 60:
+            day_module.task2(deepcopy(parsed))
+            i += 1
+        task2_time = (time() - t) / i
+    else:
+        task2_time = 0.0
 
     print(f"Day {day}: {parse_time:.3E}, {task1_time:.3E}, {task2_time:.3E}")
 

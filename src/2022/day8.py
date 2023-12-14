@@ -51,7 +51,8 @@ def task2(input):
 
     return visible.max()
 
-def parse(input: [str]) -> np.ndarray:
+def parse(input) -> np.ndarray:
+    input = util.as_lines(input)
     grid = np.zeros((len(input), len(input)), dtype=int)
 
     for i, line in enumerate(input):
@@ -63,8 +64,7 @@ def parse(input: [str]) -> np.ndarray:
 def main():
     data: str = util.get(8, 2022)
     # data = test_data
-    input = util.as_lines(data)
-    input = parse(input)
+    input = parse(data)
     print(task1(input))
     print(task2(input))
 

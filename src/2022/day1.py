@@ -19,29 +19,20 @@ test_data: [str] = \
 
 
 def task1(data: [str]):
-    m = 0
-
-    for elf in data:
-        total = np.array(util.as_lines_of_int(elf)).sum()
-        m = max(total, m)
-
-    return m
+    return max([sum(util.as_lines_of_int(elf)) for elf in data])
 
 
 def task2(data: [str]):
-    cals = np.zeros((len(data)), dtype=int)
+    return sum(list(sorted([sum(util.as_lines_of_int(elf)) for elf in data]))[::-1][0:3])
 
-    for index, elf in enumerate(data):
-        cals[index] = np.array(util.as_lines_of_int(elf)).sum()
 
-    cals.sort()
-    return cals[len(cals) - 3:].sum()
-
+def parse(data: str):
+    return util.as_double_lines(data)
 
 def main():
     data: [str] = util.get(1, 2022)
     # data = test_data
-    input = util.as_double_lines(data)
+    input = parse(data)
     print(task1(input))
     print(task2(input))
 

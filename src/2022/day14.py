@@ -8,7 +8,7 @@ test_data: str = \
     """498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9"""
 
-VISUALIZATION = True
+VISUALIZATION = False
 
 def save_grid(grid, p2, i):
     img = np.zeros((len(grid), len(grid[0]), 3), dtype="uint8")

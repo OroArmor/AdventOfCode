@@ -45,11 +45,13 @@ def task2(input):
 
     return total
 
+def parse(data: str):
+    return util.as_lines(data)
 
 def main():
     data: str = util.get(4, 2022)
     # data = test_data
-    input = util.as_lines(data)
+    input = parse(data)
     print(task1(input))
     print(task2(input))
 
