@@ -16,7 +16,6 @@ test_data: str = \
 
 
 def task1(input):
-    print(input)
     symbols, numbers = input
 
     sum = 0
@@ -117,6 +116,7 @@ def main():
     data: str = util.get(3, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 

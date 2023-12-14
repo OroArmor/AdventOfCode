@@ -11,8 +11,6 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"""
 
 
 def task1(input):
-    print(input)
-
     sum = 0
     for game in input:
         for sub in input[game]:
@@ -65,6 +63,7 @@ def main():
     data: str = util.get(2, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 

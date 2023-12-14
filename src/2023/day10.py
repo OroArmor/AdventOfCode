@@ -28,7 +28,6 @@ def connects(pos, delta, grid):
     if check not in "-|" and check == grid[tuple(pos)]:
         return False
 
-
     if grid[tuple(pos)] == "S":
         if delta[1] == -1:  # up
             return check in ["F", "|", "7"]
@@ -54,6 +53,7 @@ def connects(pos, delta, grid):
 
     return False
 
+
 def dirs(shape):
     if shape == ".":
         return []
@@ -75,38 +75,46 @@ def dirs(shape):
         return [(0, 1), (-1, 0)]
 
 
+PATH = []
+
+
 def task1(input):
+    global PATH
     grid, start = input
 
-    path = []
+    PATH = []
     check = start
-    while tuple(check) != tuple(start) or len(path) < 1:
+    while tuple(check) != tuple(start) or len(PATH) < 1:
         for card in dirs(grid[tuple(check)]):
-            if tuple(check + card) == tuple(start) and len(path) > 3:
-                path.append(tuple(check))
-                return (len(path)) // 2, path
+            if tuple(check + card) == tuple(start) and len(PATH) > 3:
+                PATH.append(tuple(check))
+                return (len(PATH)) // 2
 
-            if tuple(check + card) in path:
+            if tuple(check + card) in PATH:
                 continue
 
             if connects(check, card, grid):
-                path.append(tuple(check))
+                PATH.append(tuple(check))
                 check = check + card
                 break
 
 
-def task2(input, path):
+VISUALIZE = False
+
+
+def task2(input):
+    global PATH
     grid, start = input
 
     deltas = sorted([
-        (-path[0][0] + path[1][0], -path[0][1] + path[1][1]),
-        (-path[0][0] + path[-1][0], -path[0][1] + path[-1][1])
+        (-PATH[0][0] + PATH[1][0], -PATH[0][1] + PATH[1][1]),
+        (-PATH[0][0] + PATH[-1][0], -PATH[0][1] + PATH[-1][1])
     ])
 
     for k in "FJL7-|":
         deltas_maybe = sorted(dirs(k))
         if deltas == deltas_maybe:
-            grid[path[0]] = k
+            grid[PATH[0]] = k
             break
 
     end = max(grid.keys())
@@ -116,7 +124,7 @@ def task2(input, path):
         crossing = False
         open = None
         for x in range(end[0] + 1):
-            if (x, y) in path and crossing:
+            if (x, y) in PATH and crossing:
                 crossing = grid[(x, y)] in "-"
                 if not crossing:
                     if open == "F" and grid[(x, y)] == "7":
@@ -126,21 +134,20 @@ def task2(input, path):
                     else:
                         crosses += 1
                     open = None
-                print(grid[(x, y)], end="")
-            elif (x, y) in path:
+                if VISUALIZE: print(grid[(x, y)], end="")
+            elif (x, y) in PATH:
                 crossing = connects(np.array([x, y]), np.array([1, 0]), grid) and not grid[(x, y)] == "|"
                 if not crossing:
                     crosses += 1
                 open = grid[(x, y)]
-                print(grid[(x, y)], end="")
+                if VISUALIZE: print(grid[(x, y)], end="")
             else:
                 count += crosses % 2
-                print(f"{('█' if crosses % 2 == 1 else ' ')}", end="")
+                if VISUALIZE: print(f"{('█' if crosses % 2 == 1 else ' ')}", end="")
 
-        print("")
+        if VISUALIZE: print("")
 
     return count
-
 
 
 def parse(data: str):
@@ -163,9 +170,8 @@ def main():
     # data = test_data
     input = parse(data)
     print(input)
-    res, path = task1(input)
-    print(res)
-    print(task2(input, path))
+    print(task1(input))
+    print(task2(input))
 
 
 if __name__ == "__main__":

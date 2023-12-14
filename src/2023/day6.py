@@ -8,8 +8,6 @@ Distance:  9  40  200"""
 
 
 def task1(input):
-    print(input)
-
     prod = 1
     for race in range(len(input[0])):
         # x * (t - x) > dist
@@ -35,6 +33,7 @@ def main():
     data: str = util.get(6, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 

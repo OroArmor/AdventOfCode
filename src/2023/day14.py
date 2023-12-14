@@ -1,10 +1,4 @@
-from collections import defaultdict
-from copy import deepcopy
-from itertools import *
-
 import util
-from util import *
-import numpy as np
 
 test_data: str = \
     """O....#....
@@ -19,88 +13,77 @@ O.#..O.#.#
 #OO..#...."""
 
 
+def roll_north(blocks, walls, size):
+    new_blocks = set()
+    for (x, y) in blocks:
+        while (x, y) in new_blocks:
+            y += 1
+        while ((x, y) not in walls) and ((x, y) not in new_blocks) and (y > -1):
+            y -= 1
+        new_blocks.add((x, y + 1))
+    return new_blocks
+
+
+def roll_south(blocks, walls, size):
+    new_blocks = set()
+    for (x, y) in blocks:
+        while (x, y) in new_blocks:
+            y -= 1
+        while ((x, y) not in walls) and ((x, y) not in new_blocks) and (y < size[1]):
+            y += 1
+        new_blocks.add((x, y - 1))
+    return new_blocks
+
+
+def roll_west(blocks, walls, size):
+    new_blocks = set()
+    for (x, y) in blocks:
+        while (x, y) in new_blocks:
+            x += 1
+        while ((x, y) not in walls) and ((x, y) not in new_blocks) and (x > -1):
+            x -= 1
+        new_blocks.add((x + 1, y))
+    return new_blocks
+
+
+def roll_east(blocks, walls, size):
+    new_blocks = set()
+    for (x, y) in blocks:
+        while (x, y) in new_blocks:
+            x -= 1
+        while ((x, y) not in walls) and ((x, y) not in new_blocks) and (x < size[0]):
+            x += 1
+        new_blocks.add((x - 1, y))
+    return new_blocks
+
+
+def print_grid(walls, blocks, size):
+    for y in range(size[1]):
+        for x in range(size[0]):
+            print(" " + ("#" if (x, y) in walls else "O" if (x, y) in blocks else "."), end="")
+        print()
+
+
 def task1(input):
-    size, grid = input
-
-    grid = deepcopy(grid)
-
-    roll_north(grid, size)
-
-    total = 0
-    for point in grid:
-        if grid[point] == "O":
-            total += size[1] - point[1]
-
-    return total
+    size, walls, blocks = input
+    blocks = roll_north(blocks, walls, size)
+    return sum([size[1] - block[1] for block in blocks])
 
 
-def roll_north(grid, size):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            if (x, y) in grid:
-                if grid[(x, y)] == "O":
-                    del grid[(x, y)]
-                    ny = y
-                    while (not (x, ny) in grid) and (ny > -1):
-                        ny -= 1
-
-                    grid[(x, ny + 1)] = "O"
-
-
-def roll_south(grid, size):
-    for x in range(size[0]):
-        for y in reversed(range(size[1])):
-            if (x, y) in grid:
-                if grid[(x, y)] == "O":
-                    del grid[(x, y)]
-                    ny = y
-                    while (not (x, ny) in grid) and (ny < size[1]):
-                        ny += 1
-
-                    grid[(x, ny - 1)] = "O"
-
-
-def roll_west(grid, size):
-    for x in range(size[0]):
-        for y in range(size[1]):
-            if (x, y) in grid:
-                if grid[(x, y)] == "O":
-                    del grid[(x, y)]
-                    nx = x
-                    while (not (nx, y) in grid) and (nx > -1):
-                        nx -= 1
-
-                    grid[(nx + 1, y)] = "O"
-
-
-def roll_east(grid, size):
-    for x in reversed(range(size[0])):
-        for y in range(size[1]):
-            if (x, y) in grid:
-                if grid[(x, y)] == "O":
-                    del grid[(x, y)]
-                    nx = x
-                    while (not (nx, y) in grid) and (nx < size[1]):
-                        nx += 1
-
-                    grid[(nx - 1, y)] = "O"
 def task2(input):
-    size, grid = input
-
-    grid = deepcopy(grid)
+    size, walls, blocks = input
 
     # blocks -> turn
     seen = {}
     t = 0
     while True:
-        roll_north(grid, size)
-        roll_west(grid, size)
-        roll_south(grid, size)
-        roll_east(grid, size)
-
+        blocks = roll_north(blocks, walls, size)
+        blocks = roll_west(blocks, walls, size)
+        blocks = roll_south(blocks, walls, size)
+        blocks = roll_east(blocks, walls, size)
         t += 1
 
-        vals = tuple(sorted([(x, y) for x in range(size[0]) for y in range(size[1]) if (x, y) in grid and grid[(x, y)] == "O"]))
+        vals = tuple(sorted(blocks))
         if vals in seen:
             break
 
@@ -109,24 +92,24 @@ def task2(input):
     correct = int((1000000000 - seen[vals]) % (t - seen[vals]) + seen[vals])
     for val in seen:
         if seen[val] == correct:
-            total = 0
-            for point in val:
-                total += size[1] - point[1]
-            return total
+            return sum([size[1] - block[1] for block in val])
 
 
 def parse(data: str):
     lines = util.as_lines(data)
 
     size = (len(lines[0]), len(lines))
-    grid = {}
+    blocks = set()
+    walls = set()
 
     for y, line in enumerate(lines):
-        for x, c in enumerate(line.strip()):
-            if not c == ".":
-                grid[(x, y)] = c
+        for x, c in enumerate(line):
+            if c == "#":
+                walls.add((x, y))
+            if c == "O":
+                blocks.add((x, y))
 
-    return size, grid
+    return size, walls, blocks
 
 
 def main():

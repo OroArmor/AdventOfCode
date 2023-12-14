@@ -39,8 +39,6 @@ humidity-to-location map:
 
 
 def task1(input):
-    print(input)
-
     seeds, maps = input
 
     for map in maps:
@@ -105,6 +103,7 @@ def main():
     data: str = util.get(5, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 

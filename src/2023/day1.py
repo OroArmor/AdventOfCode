@@ -12,8 +12,6 @@ zoneight234
 7pqrstsixteen"""
 
 def task1(input):
-    print(input)
-
     lines2 = []
     for line in input:
         line2 = ""
@@ -57,6 +55,7 @@ def main():
     data: str = util.get(1, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 

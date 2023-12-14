@@ -12,8 +12,6 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"""
 
 
 def task1(input):
-    print(input)
-
     sum = 0
     for card in input:
         matches = 0
@@ -61,6 +59,7 @@ def main():
     data: str = util.get(4, 2023)
     # data = test_data
     input = parse(data)
+    print(input)
     print(task1(input))
     print(task2(input))
 
