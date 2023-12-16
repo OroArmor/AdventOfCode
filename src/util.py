@@ -65,6 +65,12 @@ def as_list_of_colon_split(s: [str]) -> [[str]]:
     return list(map(lambda x: split_on_colon(x), s))
 
 
+def as_grid(s: str) -> ([[str]], int, int):
+    grid = [[c for c in line] for line in as_lines(s)]
+
+    return grid, len(grid[0]), len(grid)
+
+
 def adjacent_directions() -> (int, int):
     for dx in range(-1, 2):
         for dy in range(-1, 2):
