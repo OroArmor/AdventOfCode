@@ -1,5 +1,7 @@
+import heapq
 import typing
 from functools import *
+from typing import TypeVar, Callable, Iterable
 
 import aocd
 import numpy as np
@@ -83,7 +85,7 @@ def cardinal_directions() -> np.ndarray:
     for dx in range(-1, 2):
         for dy in range(-1, 2):
             if (dx == 0 or dy == 0) and not (dx == dy):
-                yield np.array([dx, dy])
+                yield dx, dy
     return
 
 
@@ -143,3 +145,35 @@ def inv_modulo(value: int, modulo: int) -> int:
 def chinese_remainder_theorem(divisors: [int], remainders: [int]) -> int:
     product = reduce(int.__mul__, divisors, 1)
     return sum((product // divisor * inv_modulo(product // divisor, divisor) * remainder for divisor, remainder in zip(divisors, remainders))) % product
+
+
+T = TypeVar("T")
+
+
+def dijkstra(start: T, cost: Callable[[T], float], neighbors: Callable[[T], Iterable[T]], is_goal: Callable[[T], bool]):
+    to_test = [(0., start)]
+    testing = {start}
+    came_from = {}
+    distances = {start: 0.}
+
+    while to_test:
+        score, current = heapq.heappop(to_test)
+
+        if is_goal(current):
+            path = [current]
+            min_cost = distances[current]
+            while current in came_from:
+                current = came_from[current]
+                path.insert(0, current)
+            return path, min_cost
+
+        for neighbor in neighbors(current):
+            distance = score + cost(neighbor)
+            if neighbor not in distances or distance < distances[neighbor]:
+                came_from[neighbor] = current
+                distances[neighbor] = distance
+                if neighbor not in testing:
+                    heapq.heappush(to_test, (distance, neighbor))
+                    testing.add(neighbor)
+
+    print("FAILURE")
