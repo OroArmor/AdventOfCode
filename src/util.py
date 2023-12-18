@@ -1,7 +1,8 @@
 import heapq
+import itertools
 import typing
 from functools import *
-from typing import TypeVar, Callable, Iterable
+from typing import TypeVar, Callable, Iterable, List, Tuple
 
 import aocd
 import numpy as np
@@ -177,3 +178,13 @@ def dijkstra(start: T, cost: Callable[[T], float], neighbors: Callable[[T], Iter
                     testing.add(neighbor)
 
     print("FAILURE")
+
+
+def area(points: List[Tuple[int, int]], include_boundary: bool) -> int:
+    total = 0
+    for a, b in itertools.pairwise(points):
+        total += a[0] * b[1] - b[0] * a[1]
+        if include_boundary:
+            total += abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+    return total // 2 + 1
