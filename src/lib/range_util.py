@@ -38,6 +38,9 @@ class Range:
             print("ohno")
             print(self, other)
 
+    def split_on(self, val: int):
+        return Range(self.start, val - (1 if self.inclusive else 0), self.inclusive), Range(val, self.end - (1 if self.inclusive else 0), self.inclusive)
+
     def __str__(self):
         return f"{self.start}..{('=' if self.inclusive else '')}{self.end - (1 if self.inclusive else 0)}"
 
