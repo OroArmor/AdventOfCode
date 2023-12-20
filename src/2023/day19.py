@@ -34,7 +34,6 @@ class Rule:
     def test(self, part) -> bool:
         if self.cond is None:  # Last condition
             return True
-
         elif self.cond == "<":
             return part[self.partpart] < self.val
         elif self.cond == ">":
@@ -67,12 +66,7 @@ def task1(input):
 def task2(input):
     mappings, _ = input
 
-    start: [Range] = [
-        Range(1, 4000, True),
-        Range(1, 4000, True),
-        Range(1, 4000, True),
-        Range(1, 4000, True)
-    ]
+    start: [Range] = [Range(1, 4000, True), Range(1, 4000, True), Range(1, 4000, True), Range(1, 4000, True)]
 
     to_map = {"in": [start]}
 
@@ -153,14 +147,7 @@ def parse(data: str):
     parts = []
     for part_line in part_lines:
         x, m, a, s = util.as_csv(part_line[1: -1])
-        parts.append(
-            [
-                int(x[2:]),
-                int(m[2:]),
-                int(a[2:]),
-                int(s[2:])
-            ]
-        )
+        parts.append([int(x[2:]), int(m[2:]), int(a[2:]), int(s[2:])])
 
     return mappings, parts
 
