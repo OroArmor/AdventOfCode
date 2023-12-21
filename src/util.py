@@ -7,6 +7,7 @@ from typing import TypeVar, Callable, Iterable, List, Tuple
 import aocd
 import numpy as np
 from lib.range_util import *
+from lib.point_util import *
 
 CURRENT_YEAR: int = 2023
 
@@ -83,11 +84,7 @@ def adjacent_directions() -> (int, int):
 
 
 def cardinal_directions() -> np.ndarray:
-    for dx in range(-1, 2):
-        for dy in range(-1, 2):
-            if (dx == 0 or dy == 0) and not (dx == dy):
-                yield dx, dy
-    return
+    return Direction.values()
 
 
 def adjacent_directions_3d() -> (int, int, int):
@@ -116,8 +113,8 @@ def gcd(a: int | List[int], b: int | None = None) -> int:
     return a
 
 
-def lcm(a: int | List[int], b: int | None = None) -> int:
-    if isinstance(a, list):
+def lcm(a: int | Iterable[int], b: int | None = None) -> int:
+    if isinstance(a, Iterable):
         return reduce(lcm, a, 1)
     if b is None:
         raise ValueError('b must be set for non-lists!')
