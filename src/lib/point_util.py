@@ -45,6 +45,9 @@ class Point:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __neg__(self):
+        return Point(-self.x, -self.y)
+
 
 class Direction(Point, Enum):
     RIGHT = 1, 0
