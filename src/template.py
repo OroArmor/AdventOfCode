@@ -20,7 +20,7 @@ def parse(data: str):
 
 
 def main():
-    data: str = util.get(1, 2023)
+    data: str = util.get(1, 2024)
     # data = test_data
     input = parse(data)
     print(input)

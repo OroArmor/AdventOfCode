@@ -9,7 +9,7 @@ import numpy as np
 from lib.range_util import *
 from lib.point_util import *
 
-CURRENT_YEAR: int = 2023
+CURRENT_YEAR: int = 2024
 
 UP = np.array([0, 1])
 DOWN = np.array([0, -1])

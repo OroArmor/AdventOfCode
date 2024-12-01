@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Generator, Iterator, Self
 
 
 class Point:
@@ -47,6 +48,16 @@ class Point:
 
     def __neg__(self):
         return Point(-self.x, -self.y)
+
+    def iterate_internals(self) -> Generator[Iterator[Self], None, None]:
+        for x in range(0, 1 if self.x == 0 else self.x, -1 if self.x < 0 else 1):
+            for y in range(0, 1 if self.y == 0 else self.y, -1 if self.y < 0 else 1):
+                yield Point(x, y)
+
+    def manhattan(self, other: Self = None):
+        if other is None:
+            other = Point(0, 0)
+        return abs(self.x - other.x) + abs(self.y - other.y)
 
 
 class Direction(Point, Enum):
