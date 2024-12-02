@@ -1,4 +1,5 @@
 import util
+from collections import Counter
 
 test_data: str = \
     """3   4
@@ -11,8 +12,8 @@ test_data: str = \
 
 def task1(input):
     a, b = input
-    a.sort()
-    b.sort()
+    a = sorted(a)
+    b = sorted(b)
 
     total = 0
     for i in range(len(a)):
@@ -23,17 +24,17 @@ def task1(input):
 
 def task2(input):
     a, b = input
+    b = Counter(b)
 
     total = 0
     for i in range(len(a)):
-        total += a[i] * b.count(a[i])
+        total += a[i] * b.get(a[i], 0)
 
     return total
 
 
 def parse(data: str):
-    lines = util.as_lines(data)
-    lines = [util.as_ssv_ints(line) for line in lines]
+    lines = util.as_lines_of_ints(data)
 
     vals = [[], []]
     for line in lines:

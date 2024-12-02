@@ -41,6 +41,10 @@ def as_lines_of_int(s: str) -> [int]:
     return list_as_ints(as_lines(s))
 
 
+def as_lines_of_ints(s: str) -> [int]:
+    return list(map(lambda line: as_ssv_ints(line), as_lines(s)))
+
+
 def as_csv_of_ints(s: str) -> [int]:
     return list_as_ints(as_csv(s))
 

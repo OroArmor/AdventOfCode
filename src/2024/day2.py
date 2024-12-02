@@ -1,8 +1,6 @@
-import itertools
-
 import util
 from util import *
-import numpy as np
+import itertools
 
 test_data: str = \
     """7 6 4 2 1
@@ -11,6 +9,7 @@ test_data: str = \
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9"""
+
 
 def is_safe(line: Iterable[int]) -> bool:
     dir = None
@@ -21,6 +20,7 @@ def is_safe(line: Iterable[int]) -> bool:
             continue
         return False
     return True
+
 
 def task1(input):
     total = 0
@@ -40,18 +40,16 @@ def task2(input):
             total += 1
             continue
 
-        for perm in reversed(list(itertools.combinations(line, len(line) - 1))):
+        for perm in itertools.combinations(line, len(line) - 1):
             if is_safe(perm):
                 total += 1
                 break
-
 
     return total
 
 
 def parse(data: str):
-    lines = util.as_lines(data)
-    lines = [util.as_ssv_ints(line) for line in lines]
+    lines = util.as_lines_of_ints(data)
     return lines
 
 
