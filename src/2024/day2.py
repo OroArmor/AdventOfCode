@@ -22,6 +22,17 @@ def is_safe(line: Iterable[int]) -> bool:
     return True
 
 
+def find_issue(line: Iterable[int]) -> int:
+    dir = None
+    for (i, (a, b)) in enumerate(itertools.pairwise(line)):
+        if dir is None:
+            dir = a < b
+        if 0 < abs(a - b) < 4 and (dir == (a < b)):
+            continue
+        return i
+    return len(line)
+
+
 def task1(input):
     total = 0
 
@@ -36,14 +47,15 @@ def task2(input):
     total = 0
 
     for line in input:
-        if is_safe(line):
+        issue = find_issue(line)
+        if issue == len(line):
             total += 1
-            continue
-
-        for perm in itertools.combinations(line, len(line) - 1):
-            if is_safe(perm):
-                total += 1
-                break
+        elif is_safe(line[:issue] + line[issue + 1:]): # We only know the gap that has the issue, so we need to try both sides
+            total += 1
+        elif is_safe(line[:issue + 1] + line[issue + 2:]):
+            total += 1
+        elif issue == 1 and is_safe(line[1:]): # This can happen because if the issue is on the 2nd gap, it could be caused by a bad first value, and then a changing direction
+            total += 1
 
     return total
 
