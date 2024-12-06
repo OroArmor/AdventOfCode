@@ -2,7 +2,6 @@ from typing import Tuple, List
 
 
 class Range:
-
     def __init__(self, start: int, end: int, inclusive: bool = False):
         if inclusive and start > end:
             raise AssertionError(f"start: {start} is > end: {end}")

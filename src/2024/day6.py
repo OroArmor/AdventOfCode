@@ -1,6 +1,5 @@
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """....#.....
@@ -19,9 +18,10 @@ def task1(input):
     grid, s, w, h = input
 
     seen = set()
-    traverse(grid, seen, s, 0, w, h)
+    assert not traverse(grid, seen, s, 0, w, h)
 
     return len(set([s for s, _ in seen]))
+
 
 def traverse(grid, seen, s, dir, w, h) -> bool:
     dirs = [Direction.DOWN, Direction.RIGHT, Direction.UP, Direction.LEFT]
@@ -51,12 +51,7 @@ def task2(input):
     while 0 < s.x < w and 0 < s.y < h:
         seen.add((s, dir))
         next = s + dirs[dir]
-        if next not in grid and not (
-                (next, 0) in seen or
-                (next, 1) in seen or
-                (next, 2) in seen or
-                (next, 3) in seen
-            ):
+        if next not in grid and not ((next, 0) in seen or (next, 1) in seen or (next, 2) in seen or (next, 3) in seen):
             new_grid.add(next)
             if traverse(new_grid, set(seen), s, (dir + 1) % 4, w, h):
                 new_obs.add(next)
