@@ -1,9 +1,6 @@
-import itertools
 from collections import defaultdict
-
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """............

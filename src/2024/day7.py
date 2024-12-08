@@ -1,8 +1,5 @@
-import itertools
-
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """190: 10 19
@@ -18,59 +15,51 @@ test_data: str = \
 VALID = set()
 
 
-def run_perms(s, vs, perms) -> int:
+def run_perms(s, vs) -> int:
     global VALID
     if s in VALID:
         return s
 
-    invalid = set()
-    # print(s, vs)
-    for perm in itertools.product(perms, repeat=len(vs)-1):
-
-        perm = "".join(perm)
-        for inv in invalid:
-            if perm.endswith(inv):
-                break
-        else:
-            current = s
-            for i in reversed(range(0, len(vs) - 1)):
-                match perm[i]:
-                    case "0":
-                        q, r = divmod(current, vs[i + 1])
-                        if r != 0:
-                            # invalid.add(perm[i:])
-                            break
-                        current = q
-                    case "1":
-                        current -= vs[i + 1]
-                    case "2":
-                        if not str(current).endswith(str(vs[i + 1])):
-                            # invalid.add(perm[i:])
-                            break
-                        current = current // (10 ** len(str(vs[i + 1])))
-
-                if i > 0 and current < vs[i]:
-                    invalid.add(perm[i:])
-                    break
-            else:
-                if current == vs[0]:
-                    VALID.add(s)
-                    return s
+    if run(s, vs, len(vs) - 1):
+        VALID.add(s)
+        return s
     return 0
+
+PART_2 = False
+def run(current, vs, i) -> bool:
+    global PART_2
+    if i == 0:
+        return current == vs[0]
+
+    q, r = divmod(current, vs[i])
+    if r == 0:
+       if run(q, vs, i - 1):
+           return True
+
+    if run(current - vs[i], vs, i - 1):
+        return True
+
+    if PART_2 and str(current).endswith(str(vs[i])):
+        if run(current // (10 ** len(str(vs[i]))), vs, i - 1):
+            return True
+
+    return False
 
 
 def task1(input):
-    global VALID
+    global VALID, PART_2
     VALID = set()
-    return sum([run_perms(s, vs, '01') for s, vs in input])
+    PART_2 = False
+    return sum(run_perms(s, vs) for s, vs in input)
 
 
 def task2(input):
-    return sum([run_perms(s, vs, '012') for s, vs in input])
+    global PART_2
+    PART_2 = True
+    return sum(run_perms(s, vs) for s, vs in input)
 
 
 def parse(data: str):
-    # data = test_data
     lines = []
     for line in util.as_lines(data):
         s, vs = line.split(": ")
