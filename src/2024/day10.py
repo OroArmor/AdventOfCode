@@ -1,9 +1,6 @@
 from collections import defaultdict, deque
-from queue import SimpleQueue
-
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """89010123
@@ -79,11 +76,10 @@ def parse(data: str):
 def main():
     data: str = util.get(10, 2024)
     # data = test_data
-    for _ in range(100):
-        input = parse(data)
-        print(input)
-        print(task1(input))
-        print(task2(input))
+    input = parse(data)
+    print(input)
+    print(task1(input))
+    print(task2(input))
 
 
 if __name__ == "__main__":
