@@ -57,13 +57,14 @@ def task2(input):
     current_pos = 0
     front_i = 0
     moved = set()
-    while front_i < len(input):
+    moved_gt = len(input) - 1
+    while front_i < moved_gt + 1:
         if front_i not in moved:
             vals[front_i].add((current_pos, input[front_i][0]))
         current_pos += input[front_i][0]
         empty = input[front_i][1]
 
-        for back_i in range(len(input) - 1, front_i, -1):
+        for back_i in range(moved_gt, front_i, -1):
             if back_i not in moved:
                 if input[back_i][0] <= empty:
                     vals[back_i].add((current_pos, input[back_i][0]))
@@ -72,6 +73,9 @@ def task2(input):
                     moved.add(back_i)
                     if empty == 0:
                         break
+        while moved_gt in moved:
+            moved.remove(moved_gt)
+            moved_gt -= 1
         current_pos += empty
         front_i += 1
 

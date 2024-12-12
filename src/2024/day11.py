@@ -1,11 +1,12 @@
 from collections import defaultdict
 
 import util
+from math import ceil, log10
 from util import *
 import numpy as np
 
 test_data: str = \
-    """"""
+    """125 17"""
 
 def run(input: list[int], times: int) -> int:
     stones = {s: 1 for s in input}
@@ -15,9 +16,10 @@ def run(input: list[int], times: int) -> int:
         for s, c in stones.items():
             if s == 0:
                 next[1] += c
-            elif len(str(s)) % 2 == 0:
-                l = len(str(s))
-                a, b = int(str(s)[0:l // 2]), int(str(s)[l // 2:])
+                continue
+            l10 = ceil(log10(s))
+            if s != 1 and l10 % 2 == 0:
+                a, b = divmod(s, 10 ** (l10 // 2))
                 next[a] += c
                 next[b] += c
             else:
