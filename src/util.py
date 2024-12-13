@@ -2,7 +2,7 @@ import heapq
 import itertools
 import typing
 from functools import *
-from typing import TypeVar, Callable, Iterable, List, Tuple
+from typing import TypeVar, Callable, Iterable, List, Tuple, Union
 
 import aocd
 import numpy as np
@@ -189,3 +189,21 @@ def area(points: List[Tuple[int, int]], include_boundary: bool) -> int:
             total += abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     return total // 2 + 1
+
+
+def linear_system_of_equations(a: float, b: float, c: float, d: float, e: float, f: float) -> Union[None, Tuple[float, float]]:
+    """
+    Solves:
+        ax + by = c
+
+        dx + ey = f
+    :return: None if the two lines are parallel, including overlapping
+    """
+
+    div = (a * e - b * d)
+    if div == 0:
+        return None
+
+    x = (-b * f + c * e) / div
+    y = (a * f - c * d) / div
+    return x, y
