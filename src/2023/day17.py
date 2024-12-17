@@ -30,9 +30,6 @@ class Node:
 
 
 def task1(input):
-    def cost(node: Node):
-        return input[node.position]
-
     def neighbors(node: Node):
         for direction in cardinal_directions():
             next_node: Node = Node(
@@ -46,14 +43,13 @@ def task1(input):
             if in_grid:
                 if not (next_node.direction[0] != 0 and next_node.direction[0] == -node.direction[0] or next_node.direction[1] != 0 and next_node.direction[1] == -node.direction[1]):
                     if next_node.steps_in_direction <= 3:
-                        yield next_node
+                        yield next_node, input[node.position]
 
     def is_goal(node: Node):
         return node.position == (input.shape[0] - 1, input.shape[1] - 1)
 
     _, min_cost = dijkstra(
         Node((0, 0), (0, 0), 0),
-        cost,
         neighbors,
         is_goal)
 
@@ -61,9 +57,6 @@ def task1(input):
 
 
 def task2(input):
-    def cost(node: Node):
-        return input[node.position]
-
     def neighbors(node: Node):
         for direction in cardinal_directions():
             next_node: Node = Node(
@@ -77,14 +70,13 @@ def task2(input):
             if in_grid:
                 if not (next_node.direction[0] != 0 and next_node.direction[0] == -node.direction[0] or next_node.direction[1] != 0 and next_node.direction[1] == -node.direction[1]):
                     if next_node.steps_in_direction <= 10 and not (next_node.steps_in_direction == 1 and node.steps_in_direction < 4):
-                        yield next_node
+                        yield next_node, input[node.position]
 
     def is_goal(node: Node):
         return node.position == (input.shape[0] - 1, input.shape[1] - 1) and node.steps_in_direction >= 4
 
     _, min_cost = dijkstra(
         Node((0, 0), (0, 0), 5),
-        cost,
         neighbors,
         is_goal)
 

@@ -1,3 +1,4 @@
+import collections
 import heapq
 import itertools
 import typing
@@ -152,33 +153,36 @@ def chinese_remainder_theorem(divisors: [int], remainders: [int]) -> int:
 T = TypeVar("T")
 
 
-def dijkstra(start: T, cost: Callable[[T], float], neighbors: Callable[[T], Iterable[T]], is_goal: Callable[[T], bool]):
+def dijkstra(start: T, neighbors: Callable[[T], Iterable[Tuple[T, float]]], is_goal: Callable[[T], bool]):
     to_test = [(0., start)]
-    testing = {start}
-    came_from = {}
+    came_from = collections.defaultdict(set)
     distances = {start: 0.}
+    ends = set()
+
+    min_score = None
 
     while to_test:
         score, current = heapq.heappop(to_test)
 
         if is_goal(current):
-            path = [current]
-            min_cost = distances[current]
-            while current in came_from:
-                current = came_from[current]
-                path.insert(0, current)
-            return path, min_cost
+            if min_score is None or score == min_score:
+                min_score = score
+                ends.add(current)
+                continue
+            else:
+                came_from[current] = set()
+                break
 
-        for neighbor in neighbors(current):
-            distance = score + cost(neighbor)
+        for neighbor, cost in neighbors(current):
+            distance = score + cost
             if neighbor not in distances or distance < distances[neighbor]:
-                came_from[neighbor] = current
+                came_from[neighbor] = {current}
                 distances[neighbor] = distance
-                if neighbor not in testing:
-                    heapq.heappush(to_test, (distance, neighbor))
-                    testing.add(neighbor)
+                heapq.heappush(to_test, (distance, neighbor))
+            elif distance <= distances[neighbor]:
+                came_from[neighbor].add(current)
 
-    print("FAILURE")
+    return came_from, ends, min_score
 
 
 def area(points: List[Tuple[int, int]], include_boundary: bool) -> int:
