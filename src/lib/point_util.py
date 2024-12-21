@@ -56,7 +56,7 @@ class Point:
 
     def manhattan(self, other: Self = None):
         if other is None:
-            other = Point(0, 0)
+            return abs(self.x) + abs(self.y)
         return abs(self.x - other.x) + abs(self.y - other.y)
 
 

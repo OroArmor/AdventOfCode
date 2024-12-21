@@ -1,8 +1,5 @@
-from collections import defaultdict
-
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """###############
@@ -21,60 +18,51 @@ test_data: str = \
 #...#...#...###
 ###############"""
 
-
+DIST = {}
 
 
 def task1(input):
+    global DIST
     walls, start, end, w, h = input
 
-    dist = {}
+    DIST = {}
     steps = 0
     while start != end:
         steps += 1
-        dist[start] = steps
+        DIST[start] = steps
         for dir in Direction.values():
-            if start + dir not in dist.keys():
+            if start + dir not in DIST.keys():
                 if start + dir not in walls:
                     start += dir
                     break
-    dist[end] = steps + 1
+    DIST[end] = steps + 1
 
     total = 0
-    for p in dist.keys():
+    for p in DIST.keys():
         for dir in Direction.values():
-            if p + dir in walls and p + dir * 2 in dist.keys():
-                if dist[p + dir * 2] - dist[p] - 2 >= 100:
+            if p + dir in walls and p + dir * 2 in DIST.keys():
+                if DIST[p + dir * 2] - DIST[p] - 2 >= 100:
                     total += 1
 
     return total
 
 
 def task2(input):
-    walls, start, end, w, h = input
-    dist = {}
-    steps = 0
-    while start != end:
-        steps += 1
-        dist[start] = steps
-        for dir in Direction.values():
-            if start + dir not in dist.keys():
-                if start + dir not in walls:
-                    start += dir
-                    break
-    dist[end] = steps + 1
+    global DIST
 
     diamond = set()
     for ud in [Direction.UP, Direction.DOWN]:
         for lr in [Direction.LEFT, Direction.RIGHT]:
             for ud_s in range(21):
                 for lr_s in range(0, 21 - ud_s):
-                    diamond.add(ud * ud_s + lr * lr_s)
+                    if ud_s > 1 or lr_s > 1:
+                        diamond.add(ud * ud_s + lr * lr_s)
 
     total = 0
-    for p in dist.keys():
+    for p in DIST.keys():
         for d in diamond:
-            if p + d in dist.keys():
-                if dist[p + d] - dist[p] - d.manhattan() >= 100:
+            if (n := p + d) in DIST.keys():
+                if DIST[n] - DIST[p] - d.manhattan() >= 100:
                     total += 1
 
     return total
