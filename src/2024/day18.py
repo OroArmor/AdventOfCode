@@ -1,6 +1,5 @@
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """5,4
@@ -32,8 +31,7 @@ test_data: str = \
 SIZE = 71
 
 def task1(input):
-
-    walls = set(input[0:12])
+    walls = set(input[0:1024])
 
     def neighbors(current):
         for dir in Direction.values():
@@ -49,10 +47,9 @@ def task1(input):
 
 
 def task2(input):
-    cost = 0
-    i = 1024
-    while cost is not None:
-        walls = set(input[0:i])
+    i = (1024, len(input))
+    while i[0] != i[1] - 1:
+        walls = set(input[0:(i[0] + i[1]) // 2])
 
         def neighbors(current):
             for dir in Direction.values():
@@ -64,8 +61,11 @@ def task2(input):
             return current == Point(SIZE - 1, SIZE - 1)
 
         _, _, cost = util.dijkstra(Point(0, 0), neighbors, is_end)
-        i += 1
-    return f"{input[i - 2].x},{input[i - 2].y}"
+        if cost is None:
+            i = (i[0], (i[0] + i[1]) // 2)
+        else:
+            i = ((i[0] + i[1]) // 2, i[1])
+    return f"{input[i[0]].x},{input[i[0]].y}"
 
 
 def parse(data: str):

@@ -22,7 +22,6 @@ def task1(input):
 
     return len(set([s for s, _ in seen]))
 
-
 def traverse(grid, seen, s, dir, w, h) -> bool:
     dirs = [Direction.DOWN, Direction.RIGHT, Direction.UP, Direction.LEFT]
     while True:
@@ -44,18 +43,17 @@ def task2(input):
 
     dirs = [Direction.DOWN, Direction.RIGHT, Direction.UP, Direction.LEFT]
     seen = set()
-    new_obs = set()
-    new_grid = set(grid)
+    loops = 0
 
     dir = 0
     while 0 < s.x < w and 0 < s.y < h:
         seen.add((s, dir))
         next = s + dirs[dir]
         if next not in grid and not ((next, 0) in seen or (next, 1) in seen or (next, 2) in seen or (next, 3) in seen):
-            new_grid.add(next)
-            if traverse(new_grid, set(seen), s, (dir + 1) % 4, w, h):
-                new_obs.add(next)
-            new_grid.remove(next)
+            grid.add(next)
+            if traverse(grid, set(seen), s, (dir + 1) % 4, w, h):
+                loops += 1
+            grid.remove(next)
 
         if next in grid:
             dir += 1
@@ -63,7 +61,7 @@ def task2(input):
         else:
             s += dirs[dir]
 
-    return len(new_obs)
+    return loops
 
 
 def parse(data: str):
