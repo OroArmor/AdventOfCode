@@ -39,7 +39,8 @@ def time_day(year, day):
     else:
         task2_time = 0.0
 
-    print(f"Day {day}: {parse_time:.3E}, {task1_time:.3E}, {task2_time:.3E}")
+    print(f"Day {day:>2}: {parse_time:.3E}, {task1_time:.3E}, {task2_time:.3E}, {parse_time + task1_time + task2_time:.3E}")
+    return parse_time, task1_time, task2_time, parse_time + task1_time + task2_time
 
 
 def main():
@@ -58,8 +59,16 @@ def main():
         selected_day = None if len(args) < 3 else int(args[2] or 0)
 
     for year in [selected_year] if selected_year else range(2015, util.CURRENT_YEAR + 1):
+        print(f"y{year:>5}:   Parsing,   Part 01,   Part 02,  Combined")
+        total_parse, total_task1, total_task2, total = 0, 0, 0, 0
         for day in [selected_day] if selected_day else range(1, 25 + 1):
-            time_day(year, day)
+            par, p1, p2, tot = time_day(year, day)
+            total_parse += par
+            total_task1 += p1
+            total_task2 += p2
+            total += tot
+        if not selected_day:
+            print(f"Total : {total_parse:.3E}, {total_task1:.3E}, {total_task2:.3E}, {total:.3E}")
 
 
 if __name__ == "__main__":

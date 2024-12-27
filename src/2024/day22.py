@@ -26,6 +26,7 @@ def next_num(num: int) -> int:
 
 
 def task1(input):
+    next_num.cache_clear()
     total = 0
     for val in input:
         for _ in range(2000):

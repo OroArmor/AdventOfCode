@@ -69,7 +69,7 @@ def parse(data: str):
     vals = []
 
     for line in lines:
-        pts = util.list_as_ints(re.findall(r'(-?\d+)', line))
+        pts = util.list_as_ints(re.findall("(-?\\d+)", line))
         vals.append((Point(pts[0], pts[1]), Point(pts[2], pts[3])))
 
     return vals

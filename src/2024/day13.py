@@ -43,7 +43,7 @@ def parse(data: str):
 
     groups = []
     for line in lines:
-        line = util.list_as_ints(re.findall("\d+", line))
+        line = util.list_as_ints(re.findall("\\d+", line))
         groups.append(line)
 
     return groups

@@ -74,7 +74,6 @@ class Operation(enum.Enum):
 
 def task1(input):
     inputs, gates = input
-    inputs = deepcopy(inputs)
 
     @cache
     def solve(output):

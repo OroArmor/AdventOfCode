@@ -6,7 +6,7 @@ test_data: str = \
 
 
 def task1(input):
-    matches = re.findall("mul\((\d{1,3}),(\d{1,3})\)", input)
+    matches = re.findall("mul\\((\\d{1,3}),(\\d{1,3})\\)", input)
     total = 0
     for match in matches:
         total += int(match[0]) * int(match[1])
@@ -14,7 +14,7 @@ def task1(input):
 
 
 def task2(input):
-    matches = re.findall("mul\((\d{1,3}),(\d{1,3})\)|do(n't)?\(\)", input)
+    matches = re.findall("mul\\((\\d{1,3}),(\\d{1,3})\\)|do(n't)?\\(\\)", input)
     on = True
     total = 0
     for match in matches:
