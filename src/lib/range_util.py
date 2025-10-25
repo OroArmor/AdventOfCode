@@ -5,7 +5,7 @@ class Range:
     def __init__(self, start: int, end: int, inclusive: bool = False):
         if inclusive and start > end:
             raise AssertionError(f"start: {start} is > end: {end}")
-        if start >= end:
+        if start >= end and not inclusive:
             raise AssertionError(f"start: {start} is >= to end: {end}")
 
         self.start = start
@@ -13,10 +13,21 @@ class Range:
         self.inclusive = inclusive
 
     def __contains__(self, item):
-        if type(item) == int:
-            return self.start <= item < self.end
-        elif type(item) == Range:
+        if item.__class__ is Range:
             return self.start <= item.start and item.end < self.end
+        return self.start <= item < self.end
+
+    def intersects(self, other):
+        if other.start <= self.start < other.end or other.start <= self.end < other.end:
+            return True
+        if self.start <= other.start < self.end or self.start <= other.end < self.end:
+            return True
+        return False
+
+    def merge(self, other):
+        if not self.intersects(other):
+            return None
+        return Range(min(self.start, other.start), max(self.end, other.end) - (1 if self.inclusive else 0), self.inclusive)
 
     def intersection(self, other):
         if other.start <= self.start and self.end < other.end:  # Self contained in other
@@ -38,6 +49,10 @@ class Range:
             print(self, other)
 
     def split_on(self, val: int):
+        if val == self.start:
+            return Range(self.start + 1, self.end - (1 if self.inclusive else 0), self.inclusive),
+        elif val == self.end:
+            return Range(self.start, self.end - 1 - (1 if self.inclusive else 0), self.inclusive),
         return Range(self.start, val - (1 if self.inclusive else 0), self.inclusive), Range(val, self.end - (1 if self.inclusive else 0), self.inclusive)
 
     def __str__(self):
@@ -53,13 +68,13 @@ class Range:
         yield from range(self.start, self.end)
 
     def __lt__(self, other):
-        return self.start < other.start
+        return self.start < other.start or self.start == other.start and self.end < other.end
 
     def __le__(self, other):
         return self.start <= other.start
 
     def __gt__(self, other):
-        return self.start > other.start
+        return self.start > other.start or self.start == other.start and self.end > other.end
 
     def __ge__(self, other):
         return self.start >= other.start

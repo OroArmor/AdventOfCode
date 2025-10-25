@@ -113,8 +113,6 @@ Tile 3079:
 
 
 def task1(input):
-    print(input)
-
     board_edges = {}
 
     for board, pixels in input.items():
@@ -124,8 +122,6 @@ def task1(input):
         down = [pixel[0] for pixel in pixels if pixel[1] == 9]
 
         board_edges[board] = (left, right, up, down)
-
-    print(board_edges)
 
     result = 1
     edge_match = {}
@@ -154,26 +150,26 @@ def task1(input):
 
 
 def task2(input):
-    boards, matches = input
-    print(matches)
-    print(len(matches))
+    # boards, matches = input
+    # print(matches)
+    # print(len(matches))
 
-    image = np.zeros((int(10 * np.sqrt(len(boards))), int(10 * np.sqrt(len(boards)))))
-    board_images = {}
-    for board in boards:
-        board_image = np.zeros((10, 10))
-        for pixel in boards[board]:
-            board_image[pixel[1], pixel[0]] = 1
+    # image = np.zeros((int(10 * np.sqrt(len(boards))), int(10 * np.sqrt(len(boards)))))
+    # board_images = {}
+    # for board in boards:
+    #     board_image = np.zeros((10, 10))
+    #     for pixel in boards[board]:
+    #         board_image[pixel[1], pixel[0]] = 1
+    #
+    #     board_images[board] = board_image
+    #
+    # start_board = None
+    # for board in matches:
+    #     if len(matches[board]) == 2:
+    #         start_board = board
+    #         break
 
-        board_images[board] = board_image
-
-    start_board = None
-    for board in matches:
-        if len(matches[board]) == 2:
-            start_board = board
-            break
-
-    print(start_board, matches[start_board])
+    # print(start_board, matches[start_board])
 
 
     return

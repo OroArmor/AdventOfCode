@@ -1,8 +1,9 @@
 import re
-import threading
 
 import util
-import numpy as np
+
+from lib.point_util import Point
+from lib.range_util import Range
 
 test_data: str = \
     """Sensor at x=2, y=18: closest beacon is at x=-2, y=15
@@ -26,59 +27,82 @@ def task1(input):
 
     y = 10 if len(list_points) == 14 else 2000000
 
-    total = set()
+    ranges = find_range(list_points, y)
 
-    for points in list_points:
-        manhattan = np.abs(points[0:2] - points[2:]).sum()
-        x_man = (manhattan - abs(points[1] - y))
+    for _, beacon in list_points:
+        new_ranges = []
+        for r in ranges:
+            if beacon.y == y and beacon.x in r:
+                new_ranges += list(r.split_on(beacon.x))
+            else:
+                new_ranges.append(r)
+        ranges = new_ranges
+
+    return sum(len(r) for r in ranges)
+
+
+def find_range(list_points, y):
+    ranges = []
+    for sensor, beacon in list_points:
+        manhattan = sensor.manhattan(beacon)
+        x_man = (manhattan - abs(sensor.y - y))
 
         if x_man > 0:
-            total = total.union(set(range(points[0] - x_man, points[0] + x_man + 1)))
-
-    for points in list_points:
-        if points[3] == y and points[2] in total:
-            total.remove(points[2])
-
-    return len(total)
-
-
-def skip_scanned(list_points, current):
-    for point in list_points:
-        m = np.abs(point[0:2] - point[2:]).sum()
-        dy = abs(point[1] - current[1])
-        if dy > m:
-            continue
-
-        mx = m - dy
-        dx = abs(point[0] - current[0])
-        if dx > mx:
-            continue
-        return point[0] + mx + 1, current[1]
-    return current
-
+            my_range = Range(sensor.x - x_man, sensor.x + x_man, inclusive=True)
+            new_ranges = []
+            for r in ranges:
+                if r.intersects(my_range):
+                    my_range = my_range.merge(r)
+                else:
+                    new_ranges.append(r)
+            new_ranges.append(my_range)
+            ranges = new_ranges
+    return ranges
 
 
 def task2(input):
     list_points = input
     max_val = 20 if len(list_points) == 14 else 4000000
 
+    sensor_info = []
+    for sensor, beacon in list_points:
+        manhattan = sensor.manhattan(beacon)
+        print(manhattan)
+        sensor_info.append((Range(sensor.y - manhattan, sensor.y + manhattan, inclusive=True), manhattan))
+
     for y in range(max_val, -1, -1):
-        pp, np = (0, y), (0, y)
-        first = True
+        ranges = []
+        for i, (sensor, _) in enumerate(list_points):
+            y_range, dist = sensor_info[i]
+            if y_range.start <= y < y_range.end:
+                x_dist = (dist - abs(sensor.y - y))
+                ranges.append(Range(sensor.x - x_dist, sensor.x + x_dist, inclusive=True))
 
-        while first or (not pp == np and np[0] <= max_val):
-            first = False
-            pp = np
-            np = skip_scanned(list_points, np)
+        ranges = sorted(ranges)
+        i = 1
+        r = ranges[0]
+        while i < len(ranges):
+            if not r.intersects(ranges[i]):
+                return r.end * 4000000 + y
 
-        if np[0] <= max_val:
-            print(np)
-            return np[0] * 4000000 + np[1]
+            if r.end < ranges[i].end:
+                r = ranges[i]
+            i += 1
+
+    return
 
 
 def parse(data: str):
     lines = util.as_lines(data)
-    list_points = np.array(list(map(lambda l: np.array(util.list_as_ints(re.findall("-?\\d+", l))), lines)))
+    list_points = list(
+        map(
+            lambda pts: (Point(pts[0], pts[1]), Point(pts[2], pts[3])),
+            map(
+                lambda l: util.list_as_ints(re.findall("-?\\d+", l)),
+                lines
+            )
+        )
+    )
 
     return list_points
 

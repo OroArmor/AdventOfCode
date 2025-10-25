@@ -1,6 +1,5 @@
 import util
 from util import *
-import numpy as np
 
 test_data: str = \
     """FF7FSF7F7F7F7F7F---7
@@ -16,43 +15,28 @@ L7JLJL-JLJLJL--JLJ.L"""
 
 
 def connects(pos, delta, grid):
-    if grid[tuple(pos)] == ".":
+    if grid[pos] == ".":
         return False
 
-    if not tuple(pos + delta) in grid:
+    if not (pos + delta) in grid:
         return False
 
-    check = grid[tuple(pos + delta)]
-    delta = tuple(delta)
+    check = grid[pos + delta]
 
-    if check not in "-|" and check == grid[tuple(pos)]:
+    if check not in "-|" and check == grid[pos]:
         return False
 
-    if grid[tuple(pos)] == "S":
-        if delta[1] == -1:  # up
+    if grid[pos] == "S":
+        if delta == Direction.DOWN:  # up
             return check in ["F", "|", "7"]
-        elif delta[1] == 1:  # down
+        elif delta == Direction.DOWN:  # down
             return check in ["L", "|", "J"]
-        elif delta[0] == 1:  # right
+        elif delta == Direction.RIGHT:  # right
             return check in ["7", "-", "J"]
-        elif delta[0] == -1:  # left
+        elif delta == Direction.LEFT:  # left
             return check in ["F", "-", "L"]
 
-    if check == "F":
-        return delta in [(0, -1), (-1, 0)]
-    elif check == "|":
-        return delta in [(0, 1), (0, -1)]
-    elif check == "L":
-        return delta in [(0, 1), (-1, 0)]
-    elif check == "-":
-        return delta in [(1, 0), (-1, 0)]
-    elif check == "J":
-        return delta in [(0, 1), (1, 0)]
-    elif check == "7":
-        return delta in [(0, -1), (1, 0)]
-
-    return False
-
+    return delta in [-dir for dir in dirs(check)]
 
 def dirs(shape):
     if shape == ".":
@@ -62,17 +46,17 @@ def dirs(shape):
         return [c for c in cardinal_directions()]
 
     if shape == "F":
-        return [(0, 1), (1, 0)]
+        return [Direction.UP, Direction.RIGHT]
     elif shape == "|":
-        return [(0, -1), (0, 1)]
+        return [Direction.DOWN, Direction.UP]
     elif shape == "L":
-        return [(0, -1), (1, 0)]
+        return [Direction.DOWN, Direction.RIGHT]
     elif shape == "-":
-        return [(-1, 0), (1, 0)]
+        return [Direction.RIGHT, Direction.LEFT]
     elif shape == "J":
-        return [(0, -1), (-1, 0)]
+        return [Direction.DOWN, Direction.LEFT]
     elif shape == "7":
-        return [(0, 1), (-1, 0)]
+        return [Direction.UP, Direction.LEFT]
 
 
 PATH = []
@@ -84,17 +68,17 @@ def task1(input):
 
     PATH = []
     check = start
-    while tuple(check) != tuple(start) or len(PATH) < 1:
-        for card in dirs(grid[tuple(check)]):
-            if tuple(check + card) == tuple(start) and len(PATH) > 3:
-                PATH.append(tuple(check))
+    while check != start or len(PATH) < 1:
+        for card in dirs(grid[check]):
+            if check + card == start and len(PATH) > 3:
+                PATH.append(check)
                 return (len(PATH)) // 2
 
-            if tuple(check + card) in PATH:
+            if check + card in PATH:
                 continue
 
             if connects(check, card, grid):
-                PATH.append(tuple(check))
+                PATH.append(check)
                 check = check + card
                 break
 
@@ -107,8 +91,8 @@ def task2(input):
     grid, start = input
 
     deltas = sorted([
-        (-PATH[0][0] + PATH[1][0], -PATH[0][1] + PATH[1][1]),
-        (-PATH[0][0] + PATH[-1][0], -PATH[0][1] + PATH[-1][1])
+        Point(-PATH[0][0] + PATH[1][0], -PATH[0][1] + PATH[1][1]),
+        Point(-PATH[0][0] + PATH[-1][0], -PATH[0][1] + PATH[-1][1])
     ])
 
     for k in "FJL7-|":
@@ -124,23 +108,23 @@ def task2(input):
         crossing = False
         open = None
         for x in range(end[0] + 1):
-            if (x, y) in PATH and crossing:
-                crossing = grid[(x, y)] in "-"
+            if Point(x, y) in PATH and crossing:
+                crossing = grid[Point(x, y)] in "-"
                 if not crossing:
-                    if open == "F" and grid[(x, y)] == "7":
+                    if open == "F" and grid[Point(x, y)] == "7":
                         pass
-                    elif open == "L" and grid[(x, y)] == "J":
+                    elif open == "L" and grid[Point(x, y)] == "J":
                         pass
                     else:
                         crosses += 1
                     open = None
-                if VISUALIZE: print(grid[(x, y)], end="")
-            elif (x, y) in PATH:
-                crossing = connects(np.array([x, y]), np.array([1, 0]), grid) and not grid[(x, y)] == "|"
+                if VISUALIZE: print(grid[Point(x, y)], end="")
+            elif Point(x, y) in PATH:
+                crossing = connects(Point(x, y), Direction.RIGHT, grid) and not grid[Point(x, y)] == "|"
                 if not crossing:
                     crosses += 1
-                open = grid[(x, y)]
-                if VISUALIZE: print(grid[(x, y)], end="")
+                open = grid[Point(x, y)]
+                if VISUALIZE: print(grid[Point(x, y)], end="")
             else:
                 count += crosses % 2
                 if VISUALIZE: print(f"{('█' if crosses % 2 == 1 else ' ')}", end="")
@@ -158,11 +142,11 @@ def parse(data: str):
 
     for y, line in enumerate(lines):
         for x, c in enumerate(line):
-            grid[(x, y)] = c
+            grid[Point(x, y)] = c
             if c == "S":
-                start = (x, y)
+                start = Point(x, y)
 
-    return grid, np.array(start)
+    return grid, start
 
 
 def main():
