@@ -77,7 +77,7 @@ def main():
         if "--iterations" in args:
             iterations = int(args[args.index("--iterations") + 1])
         if "--time" in args:
-            max_time = args[args.index("--time") + 1]
+            max_time = float(args[args.index("--time") + 1])
     else:
         selected_year = None if len(args) < 2 else int(args[1])
         selected_day = None if len(args) < 3 else int(args[2] or 0)
