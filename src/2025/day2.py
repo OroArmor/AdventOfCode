@@ -9,25 +9,49 @@ test_data: str = \
 def task1(input):
     total = 0
     for r in input:
-        for id in r:
-            id = str(id)
-            ida, idb = id[:len(id) // 2], id[len(id) // 2:]
-            if ida == idb:
-                total += int(id)
+        start = str(r.start)
+        end = str(r.end - 1)
+
+        if len(start) % 2 == 1 and len(end) == len(start):
+            continue
+
+        spotential = start[:len(start) // 2]
+        potential = end[:len(end) // 2 + len(end) % 2]
+
+        r2 = Range(int(spotential) if spotential != '' else 0, int(potential), inclusive=True)
+        for id_half in r2:
+            id = int(str(id_half) * 2)
+            if id in r:
+                total += id
     return total
 
 
 def task2(input):
     total = 0
     for r in input:
-        for id in r:
-            id = str(id)
-            for l in range(1, len(id) // 2 + 1):
-                if len(id) % l == 0:
-                    ida = id[:l]
-                    if ida * (len(id) // l) == id:
-                        total += int(id)
-                        break
+        dups = set()
+        start = str(r.start)
+        end = str(r.end - 1)
+
+        for l in range(0, len(str(r.start)) // 2 + 1):
+            spotential = start[:l]
+            potential = end[:l + (len(end) != len(start))]
+
+            if spotential == '' and potential == '':
+                continue
+
+            r2 = Range(int(spotential) if spotential != '' else 0, int(potential), inclusive=True)
+            for id_partial in r2:
+                id = int(str(id_partial) * (len(start) // len(str(id_partial))))
+                if id >= 9 and id in r and id not in dups:
+                    dups.add(id)
+                    total += id
+                if len(end) != len(start):
+                    id = int(str(id_partial) * (len(end) // len(str(id_partial))))
+                    if id in r and id not in dups:
+                        dups.add(id)
+                        total += id
+
     return total
 
 

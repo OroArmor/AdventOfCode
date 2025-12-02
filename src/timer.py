@@ -87,7 +87,7 @@ def main():
         print(f"y{year:>5}:   Parsing,   Part 01,   Part 02,  Combined")
         total_parse, total_task1, total_task2, total = 0, 0, 0, 0
         for day in [selected_day] if selected_day else range(1, 25 + 1):
-            result = time_day(year, day, max_iterations=iterations, max_time=max_time)
+            result = time_day(year, str(day), max_iterations=iterations, max_time=max_time)
             if result:
                 par, p1, p2, tot = result
                 total_parse += par
