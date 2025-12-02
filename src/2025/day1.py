@@ -21,8 +21,7 @@ def task1(input):
     location = 50
     for turn in input:
         location += turn
-        location %= 100
-        if location == 0:
+        if location % 100 == 0:
             times += 1
 
     return times

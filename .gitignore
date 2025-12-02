@@ -4,3 +4,4 @@
 /src/2022/visualization/
 /TOKEN
 *.pclprof
+**/__pycache__/
