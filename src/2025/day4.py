@@ -19,7 +19,7 @@ KERNEL = np.ones((3, 3))
 
 
 def task1(input):
-    counts = np.multiply(scipy.signal.convolve2d(input, KERNEL, mode="same", boundary="fill", fillvalue=0), input)
+    counts = np.multiply(scipy.signal.convolve2d(input, KERNEL, mode="same"), input)
     return np.logical_and(counts < 5, counts > 0).sum()
 
 
@@ -27,10 +27,7 @@ def task2(input):
     total = 0
 
     while True:
-        counts = np.multiply(
-            scipy.signal.convolve2d(input, KERNEL, mode="same", boundary="fill", fillvalue=0),
-            input
-        )
+        counts = np.multiply(scipy.signal.convolve2d(input, KERNEL, mode="same"), input)
 
         removed = np.logical_and(counts < 5, counts > 0)
         removed_count = np.sum(removed)
@@ -43,7 +40,7 @@ def task2(input):
 
 
 def parse(data: str):
-    return np.array(util.as_grid(data)[0]) == "@"
+    return np.array([np.fromiter(l, dtype="U1") for l in util.as_lines(data)]) == "@"
 
 
 def main():
