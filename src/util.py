@@ -3,7 +3,7 @@ import heapq
 import itertools
 import typing
 from functools import *
-from typing import TypeVar, Callable, Iterable, List, Tuple, Union
+from typing import TypeVar, Callable, Iterable, List, Tuple, Union, Any, Generator
 
 import aocd
 import numpy as np
@@ -85,6 +85,14 @@ def adjacent_directions() -> (int, int):
         for dy in range(-1, 2):
             if dx != 0 or dy != 0:
                 yield dx, dy
+    return
+
+
+def adjacent_points() -> Generator[Point, Any, None]:
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            if dx != 0 or dy != 0:
+                yield Point(dx, dy)
     return
 
 
