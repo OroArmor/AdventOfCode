@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 
 class Range:
@@ -17,19 +17,19 @@ class Range:
             return self.start <= item.start and item.end < self.end
         return self.start <= item < self.end
 
-    def intersects(self, other):
+    def intersects(self, other) -> bool:
         if other.start <= self.start < other.end or other.start <= self.end < other.end:
             return True
         if self.start <= other.start < self.end or self.start <= other.end < self.end:
             return True
         return False
 
-    def merge(self, other):
+    def merge(self, other) -> Union["Range", None]:
         if not self.intersects(other):
             return None
         return Range(min(self.start, other.start), max(self.end, other.end) - (1 if self.inclusive else 0), self.inclusive)
 
-    def intersection(self, other):
+    def intersection(self, other) -> Tuple[Union["Range", None], List["Range"]]:
         if other.start <= self.start and self.end < other.end:  # Self contained in other
             return self, []
         elif other.end <= self.start or self.end <= other.start:  # Self and other do not intersect
@@ -45,10 +45,10 @@ class Range:
         elif self.start <= other.start < other.end <= self.end:
             return other, [Range(self.start, other.start), Range(other.end, self.end)]
         else:
-            print("ohno")
             print(self, other)
+            raise Exception("ohno")
 
-    def split_on(self, val: int):
+    def split_on(self, val: int) -> Union[Tuple["Range"], Tuple["Range", "Range"]]:
         if val == self.start:
             return Range(self.start + 1, self.end - (1 if self.inclusive else 0), self.inclusive),
         elif val == self.end:
@@ -81,6 +81,23 @@ class Range:
 
     def __eq__(self, other):
         return self.start == other.start and self.end == other.end
+
+    @staticmethod
+    def reduce_ranges(ranges: List["Range"]) -> List["Range"]:
+        while True:
+            new_ranges = []
+            for r in ranges:
+                for i, r2 in enumerate(new_ranges):
+                    merge = r.merge(r2)
+                    if merge:
+                        new_ranges[i] = merge
+                        break
+                else:
+                    new_ranges.append(r)
+
+            if len(new_ranges) == len(ranges):
+                return new_ranges
+            ranges = new_ranges
 
 
 if __name__ == "__main__":
