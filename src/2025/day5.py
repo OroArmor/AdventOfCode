@@ -23,7 +23,7 @@ def task1(input):
 
     for p in ps:
         for r in ranges:
-            if p in r:
+            if r.start < p <= r.end:
                 total += 1
                 break
 

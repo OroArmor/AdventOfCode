@@ -18,15 +18,22 @@ class Range:
         return self.start <= item < self.end
 
     def intersects(self, other) -> bool:
-        if other.start <= self.start < other.end or other.start <= self.end < other.end:
+        if other.start <= self.start < other.end:
             return True
-        if self.start <= other.start < self.end or self.start <= other.end < self.end:
+        if self.start <= other.start < self.end:
+            return True
+        if other.start <= self.end < other.end:
+            return True
+        if self.start <= other.end < self.end:
             return True
         return False
 
     def merge(self, other) -> Union["Range", None]:
-        if not self.intersects(other):
-            return None
+        """
+        Requires that the two ranges already intersect. (or not if you want that)
+        :param other: other range
+        :return: ``[min(start,other.start),max(end,other.end))`` (inclusive if this is inclusive)
+        """
         return Range(min(self.start, other.start), max(self.end, other.end) - (1 if self.inclusive else 0), self.inclusive)
 
     def intersection(self, other) -> Tuple[Union["Range", None], List["Range"]]:
@@ -84,20 +91,21 @@ class Range:
 
     @staticmethod
     def reduce_ranges(ranges: List["Range"]) -> List["Range"]:
-        while True:
-            new_ranges = []
-            for r in ranges:
-                for i, r2 in enumerate(new_ranges):
-                    merge = r.merge(r2)
-                    if merge:
-                        new_ranges[i] = merge
-                        break
-                else:
-                    new_ranges.append(r)
+        sorted_ranges = sorted(ranges)
 
-            if len(new_ranges) == len(ranges):
-                return new_ranges
-            ranges = new_ranges
+        ranges = []
+        range = sorted_ranges[0]
+
+        for r in sorted_ranges[1:]:
+            if r.start <= range.end:
+                if r.end > range.end:
+                    range.end = r.end
+            else:
+                ranges.append(range)
+                range = r
+        ranges.append(range)
+
+        return ranges
 
 
 if __name__ == "__main__":

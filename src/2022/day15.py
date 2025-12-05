@@ -48,16 +48,8 @@ def find_range(list_points, y):
         x_man = (manhattan - abs(sensor.y - y))
 
         if x_man > 0:
-            my_range = Range(sensor.x - x_man, sensor.x + x_man, inclusive=True)
-            new_ranges = []
-            for r in ranges:
-                if r.intersects(my_range):
-                    my_range = my_range.merge(r)
-                else:
-                    new_ranges.append(r)
-            new_ranges.append(my_range)
-            ranges = new_ranges
-    return ranges
+            ranges.append(Range(sensor.x - x_man, sensor.x + x_man, inclusive=True))
+    return Range.reduce_ranges(ranges)
 
 
 def task2(input):
@@ -67,7 +59,6 @@ def task2(input):
     sensor_info = []
     for sensor, beacon in list_points:
         manhattan = sensor.manhattan(beacon)
-        print(manhattan)
         sensor_info.append((Range(sensor.y - manhattan, sensor.y + manhattan, inclusive=True), manhattan))
 
     for y in range(max_val, -1, -1):
