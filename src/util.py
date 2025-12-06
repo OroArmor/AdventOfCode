@@ -19,6 +19,11 @@ RIGHT = np.array([1, 0])
 
 
 def get(day: int, year: int = CURRENT_YEAR):
+    from datetime import datetime
+    from aocd.utils import AOC_TZ
+    remaining = datetime(year, 12, day, tzinfo=AOC_TZ) - datetime.now(tz=AOC_TZ)
+    if 0 <= remaining.seconds <= 90:
+        return aocd.get_data(year=year, day=day, block=True)
     return aocd.get_data(year=year, day=day)
 
 
@@ -59,11 +64,11 @@ def as_csv_lines_of_ints(s: str) -> [[int]]:
 
 
 def as_ssv(s: str) -> [str]:
-    return s.replace("\n", " ").split(" ")
+    return s.replace("\n", " ").split()
 
 
 def as_ssv_ints(s: str) -> [int]:
-    return list_as_ints(s.replace("\n", " ").split(" "))
+    return list_as_ints(s.replace("\n", " ").split())
 
 
 def split_on_colon(s: str) -> [str]:
