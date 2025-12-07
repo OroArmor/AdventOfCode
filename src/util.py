@@ -1,3 +1,4 @@
+import bisect
 import collections
 import heapq
 import itertools
@@ -163,7 +164,24 @@ def chinese_remainder_theorem(divisors: [int], remainders: [int]) -> int:
     return sum((product // divisor * inv_modulo(product // divisor, divisor) * remainder for divisor, remainder in zip(divisors, remainders))) % product
 
 
+class HashableDict(dict):
+    def __hash__(self) -> int:
+        return id(self)
+
+
 T = TypeVar("T")
+
+
+def binary_search(list: List[T], val: T) -> (bool, int):
+    """
+    :param val:
+    :param list:
+    :return: true if found, and the index it was found or where to insert it
+    """
+    i = bisect.bisect_left(list, val)
+    if i != len(list) and list[i] == val:
+        return True, i
+    return False, i
 
 
 def dijkstra(start: T, neighbors: Callable[[T], Iterable[Tuple[T, float]]], is_goal: Callable[[T], bool]):
