@@ -59,45 +59,33 @@ P1_CHECKPOINT = None
 
 def task1(input):
     global DISTANCES, P1_CHECKPOINT
-    points = input
+
+    points = np.array(input)
+    diff = points[:, None, :] - points[None, :, :]
+    dist_sq = np.sum(diff ** 2, axis=-1)
+    I, J = np.triu_indices(len(points), k=1)
+    dist_sq = dist_sq[I, J]
+    DISTANCES = np.argsort(dist_sq)
 
     circuits = defaultdict(set)
     junctions = {}
-
-    DISTANCES = np.zeros((len(points), len(points)))
-    for i, j1 in enumerate(points):
-        for j, j2 in enumerate(points):
-            if i < j:
-                DISTANCES[i, j] = np.linalg.norm(np.array(j1) - np.array(j2))
-
-    current_distance = 0
-    for iter in range(10 if len(points) == 20 else 1000):
-        mask = DISTANCES > current_distance
-        val = np.min(DISTANCES[mask])
-        i, j = np.argwhere(DISTANCES == val)[0]
-
-        current_distance = DISTANCES[i, j]
+    for k in range(10 if len(input) == 20 else 1000):
+        i, j = I[DISTANCES[k]], J[DISTANCES[k]]
         add_link(i, j, junctions, circuits)
 
-    P1_CHECKPOINT = (current_distance, junctions, circuits)
+    P1_CHECKPOINT = (junctions, circuits, I, J)
 
     return reduce(int.__mul__, list(sorted(map(len, circuits.values())))[-3:], 1)
 
 
 def task2(input):
-    points = input
-
-    current_distance, junctions, circuits = P1_CHECKPOINT
-    while True:
-        mask = DISTANCES > current_distance
-        val = np.min(DISTANCES[mask])
-        i, j = np.argwhere(DISTANCES == val)[0]
-
-        current_distance = DISTANCES[i, j]
+    junctions, circuits, I, J = P1_CHECKPOINT
+    for k in itertools.count(10 if len(input) == 20 else 1000):
+        i, j = I[DISTANCES[k]], J[DISTANCES[k]]
         add_link(i, j, junctions, circuits)
 
-        if len(circuits[junctions[j]]) == len(points) or len(circuits[junctions[i]]) == len(points):
-            return points[i][0] * points[j][0]
+        if len(circuits[junctions[j]]) == len(input) or len(circuits[junctions[i]]) == len(input):
+            return input[i][0] * input[j][0]
 
 
 def parse(data: str):
