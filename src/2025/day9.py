@@ -37,17 +37,28 @@ def task2(input):
 
     valid = np.ones_like(I, dtype=bool)
 
-    inline_with = np.logical_and(
-        input[None, :] > min[:, None],
-        input[None, :] < max[:, None]
-    )
+    px = input[:, 0]
+    py = input[:, 1]
+
+    minx = min[:, 0]
+    maxx = max[:, 0]
+    miny = min[:, 1]
+    maxy = max[:, 1]
+
+    tmp = px > minx[:, None]
+    np.bitwise_and(tmp, px < maxx[:, None], out=tmp)
+    inline_x = tmp
+
+    tmp = py > miny[:, None]
+    np.bitwise_and(tmp, py < maxy[:, None], out=tmp)
+    inline_y = tmp
 
     # Remove rects with a corner in the middle
     valid &= np.logical_not(
         np.logical_or.reduce(
-            np.logical_and.reduce(
-                inline_with,
-                axis=2
+            np.logical_and(
+                inline_x,
+                inline_y
             ),
             axis=1
         )
@@ -57,22 +68,16 @@ def task2(input):
     vert = lines[0, :, 0] == lines[1, :, 0]
     hor = lines[0, :, 1] == lines[1, :, 1]
 
+    lines_y = np.sort(lines[:, hor, 0], axis=0)
+    lines_x = np.sort(lines[:, vert, 1], axis=0)
+
     # Remove lines that cross horizontally
-    bad_hor = np.logical_or.reduce(
+    bad_hor = np.any(
         np.logical_and(
+            inline_y[:, hor, None],
             np.logical_and(
-                hor[None, :],
-                inline_with[:, :, 1]
-            )[:, :, None],
-            np.logical_or(
-                np.logical_and(
-                    lines[0, :, None, 0] <= min[:, None, None, 0],
-                    lines[1, :, None, 0] >= max[:, None, None, 0],
-                ),
-                np.logical_and(
-                    lines[0, :, None, 0] >= max[:, None, None, 0],
-                    lines[1, :, None, 0] <= min[:, None, None, 0],
-                )
+                lines_y[0, :, None] <= min[:, None, None, 0],
+                lines_y[1, :, None] >= max[:, None, None, 0],
             )
         ),
         axis=(1, 2),
@@ -80,21 +85,12 @@ def task2(input):
     valid &= np.logical_not(bad_hor)
 
     # Remove lines that cross vertically
-    bad_vert = np.logical_or.reduce(
+    bad_vert = np.any(
         np.logical_and(
+            inline_x[:, vert, None],
             np.logical_and(
-                vert[None, :],
-                inline_with[:, :, 0]
-            )[:, :, None],
-            np.logical_or(
-                np.logical_and(
-                    lines[0, :, None, 1] <= min[:, None, None, 1],
-                    lines[1, :, None, 1] >= max[:, None, None, 1],
-                ),
-                np.logical_and(
-                    lines[0, :, None, 1] >= max[:, None, None, 1],
-                    lines[1, :, None, 1] <= min[:, None, None, 1],
-                )
+                lines_x[0, :, None] <= min[:, None, None, 1],
+                lines_x[1, :, None] >= max[:, None, None, 1],
             )
         ),
         axis=(1, 2),
