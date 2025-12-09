@@ -16,12 +16,10 @@ class Point:
         raise AttributeError(f"Invalid item for getitem: {item}")
 
     def __add__(self, other):
-        if isinstance(other, Point):
-            return Point(self.x + other.x, self.y + other.y)
+        return Point(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
-        if isinstance(other, Point):
-            return Point(self.x - other.x, self.y - other.y)
+        return Point(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other):
         if isinstance(other, int):
@@ -32,7 +30,7 @@ class Point:
             return Point(self.x // other, self.y // other)
 
     def __hash__(self):
-        return self.x * 31 + self.y
+        return self.x * 207407539 + self.y
 
     def __str__(self):
         return f"({self.x}, {self.y})"
@@ -49,10 +47,16 @@ class Point:
     def __neg__(self):
         return Point(-self.x, -self.y)
 
+    def __abs__(self):
+        return Point(abs(self.x), abs(self.y))
+
     def iterate_internals(self) -> Generator[Iterator[Self], None, None]:
         for x in range(0, 1 if self.x == 0 else self.x, -1 if self.x < 0 else 1):
             for y in range(0, 1 if self.y == 0 else self.y, -1 if self.y < 0 else 1):
                 yield Point(x, y)
+
+    def area(self):
+        return self.x * self.y
 
     def manhattan(self, other: Self = None):
         if other is None:

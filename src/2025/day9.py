@@ -12,68 +12,101 @@ test_data: str = \
 2,3
 7,3"""
 
+P1 = None
+
 
 def task1(input):
-    max_size = 0
-
-    for i, a in enumerate(input):
-        for b in input[i + 1:]:
-            s = (1 + abs(a[0] - b[0])) * (1 + abs(a[1] - b[1]))
-            if s > max_size:
-                max_size = s
-
-    return max_size
+    global P1
+    I, J = np.triu_indices(len(input), k=2)
+    areas = np.multiply.reduce(
+        np.abs(
+            input[I] - input[J]
+        )
+        +
+        np.array([1, 1]),
+        axis=1
+    )
+    P1 = areas, I, J
+    return np.max(areas)
 
 
 def task2(input):
-    max_size = 0
+    areas, I, J = P1
+    min = np.min([input[I], input[J]], axis=0)
+    max = np.max([input[I], input[J]], axis=0)
 
-    for i, a in enumerate(input):
-        for j, b in enumerate(input[i + 1:]):
-            s = (1 + abs(a[0] - b[0])) * (1 + abs(a[1] - b[1]))
-            mini = Point(min(a.x, b.x), min(a.y, b.y))
-            maxi = Point(max(a.x, b.x), max(a.y, b.y))
+    valid = np.ones_like(I, dtype=bool)
 
-            past = None
-            first = None
-            bad = False
-            for d in input:
-                e, f = d - mini, maxi - d
+    inline_with = np.logical_and(
+        input[None, :] > min[:, None],
+        input[None, :] < max[:, None]
+    )
 
-                dir = Point(
-                    2 if f.x < 0 else
-                    1 if f.x == 0 else
-                    -1 if e.x == 0 else
-                    -2 if e.x < 0 else
-                    0,
-                    2 if f.y < 0 else
-                    1 if f.y == 0 else
-                    -1 if e.y == 0 else
-                    -2 if e.y < 0 else
-                    0)
+    # Remove rects with a corner in the middle
+    valid &= np.logical_not(
+        np.logical_or.reduce(
+            np.logical_and.reduce(
+                inline_with,
+                axis=2
+            ),
+            axis=1
+        )
+    )
 
-                if past is None:
-                    first = dir
-                elif (dir.x == 0 and dir.y == 0 or
-                  dir.x == 0 and dir.y * past.y < 0 or
-                  dir.y == 0 and dir.x * past.x < 0):
-                    bad = True
-                    break
-                past = dir
-            if (dir.x == 0 and dir.y == 0 or
-                    dir.x == 0 and dir.y * first.y < 0 or
-                    dir.y == 0 and dir.x * first.x < 0):
-                bad = True
+    lines = np.stack([input, np.roll(input, -1, axis=0)])
+    vert = lines[0, :, 0] == lines[1, :, 0]
+    hor = lines[0, :, 1] == lines[1, :, 1]
 
-            if s > max_size and not bad:
-                max_size = s
+    # Remove lines that cross horizontally
+    bad_hor = np.logical_or.reduce(
+        np.logical_and(
+            np.logical_and(
+                hor[None, :],
+                inline_with[:, :, 1]
+            )[:, :, None],
+            np.logical_or(
+                np.logical_and(
+                    lines[0, :, None, 0] <= min[:, None, None, 0],
+                    lines[1, :, None, 0] >= max[:, None, None, 0],
+                ),
+                np.logical_and(
+                    lines[0, :, None, 0] >= max[:, None, None, 0],
+                    lines[1, :, None, 0] <= min[:, None, None, 0],
+                )
+            )
+        ),
+        axis=(1, 2),
+    )
+    valid &= np.logical_not(bad_hor)
 
-    return max_size
+    # Remove lines that cross vertically
+    bad_vert = np.logical_or.reduce(
+        np.logical_and(
+            np.logical_and(
+                vert[None, :],
+                inline_with[:, :, 0]
+            )[:, :, None],
+            np.logical_or(
+                np.logical_and(
+                    lines[0, :, None, 1] <= min[:, None, None, 1],
+                    lines[1, :, None, 1] >= max[:, None, None, 1],
+                ),
+                np.logical_and(
+                    lines[0, :, None, 1] >= max[:, None, None, 1],
+                    lines[1, :, None, 1] <= min[:, None, None, 1],
+                )
+            )
+        ),
+        axis=(1, 2),
+    )
+    valid &= np.logical_not(bad_vert)
+
+    return np.max(areas[valid])
 
 
 def parse(data: str):
     lines = util.as_csv_lines_of_ints(data)
-    return [Point(x, y) for x, y in lines]
+    return np.array(lines, dtype=int)
 
 
 def main():
