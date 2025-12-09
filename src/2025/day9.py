@@ -31,7 +31,55 @@ def task1(input):
 
 
 def task2(input):
-    areas, I, J = P1
+    bot, top = len(input) // 2, len(input) // 2 + 1
+    if input[top][1] < input[bot][1]:
+        top, bot = bot, top
+
+    top_max_y, bot_min_y = input[top][1], input[bot][1]
+    for a, b in itertools.pairwise(input[:top]):
+        if a[0] == b[0] and a[0] == input[top][0]: # vertical line
+            top_max_y = max(a[1], b[1])
+            break
+        elif a[0] <= input[top][0] <= b[0] or a[0] >= input[top][0] >= b[0]: # horizontal line
+            top_max_y = a[1]
+            break
+    for a, b in itertools.pairwise(reversed(input[bot:])):
+        if a[0] == b[0] and a[0] == input[bot][0]: # vertical line
+            bot_min_y = max(a[1], b[1])
+            break
+        elif a[0] <= input[bot][0] <= b[0] or a[0] >= input[bot][0] >= b[0]:
+            bot_min_y = a[1]
+            break
+
+    max_area = 0
+    best_pair = None
+    top_x, bot_x = 0, 0
+    for i, point in enumerate(input[bot:]):
+        if bot_min_y <= point[1] <= input[bot][1] and bot_x <= point[0]:
+            bot_x = point[0]
+            s = np.multiply.reduce(np.abs(input[bot] - point) + 1)
+            if s > max_area:
+                best_pair = (i + bot, bot)
+                max_area = s
+    for i, point in enumerate(reversed(input[:top])):
+        if point[1] <= top_max_y and top_x <= point[0]:
+            top_x = point[0]
+            s = np.multiply.reduce(np.abs(input[top] - point) + 1)
+            if s > max_area:
+                best_pair = (top - i - 1, top)
+                max_area = s
+
+    if not numpy_valid_areas(input, np.array((best_pair[0], )).reshape(1), np.array((best_pair[1], )).reshape(1))[0]:
+        print("Found incorrect answer - improve solution")
+        areas, I, J = P1
+        valid = numpy_valid_areas(input, I, J)
+        return np.max(areas[valid])
+
+    return max_area
+
+
+def numpy_valid_areas(input, I, J):
+    # areas, I, J = P1
     min = np.min([input[I], input[J]], axis=0)
     max = np.max([input[I], input[J]], axis=0)
 
@@ -96,8 +144,7 @@ def task2(input):
         axis=(1, 2),
     )
     valid &= np.logical_not(bad_vert)
-
-    return np.max(areas[valid])
+    return valid
 
 
 def parse(data: str):
@@ -107,7 +154,7 @@ def parse(data: str):
 
 def main():
     data: str = util.get(9, 2025)
-    # data = test_data
+    data = test_data
     input = parse(data)
     print(input)
     print(task1(input))
