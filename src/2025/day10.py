@@ -1,4 +1,5 @@
-from collections import defaultdict
+import functools
+import more_itertools
 import util
 from util import *
 import numpy as np
@@ -34,32 +35,16 @@ class Machine:
         return f"{self.goal}: [{self.int_buttons}] | {self.joltage}"
 
 
-def min_presses(machine, state, presses, cache, uses):
-    if state in cache.keys():
-        if cache[state][0] <= presses:
-            return cache[state][1]
-
-    min_press = 10000000000000000000
-    for button in machine.int_buttons:
-        if uses[button] >= 1:
-            continue
-        uses[button] += 1
-        next_state = state ^ button
-        if next_state != machine.goal:
-            min_press = min(
-                min_press,
-                min_presses(machine, next_state, presses + 1, cache, uses)
-            )
-        else:
-            min_press = presses + 1
-        uses[button] -= 1
-
-    cache[state] = (presses, min_press)
-    return min_press
+def min_presses(machine):
+    for comb in more_itertools.powerset(machine.int_buttons):
+        if comb != ():
+            result = functools.reduce(np.int64.__xor__, comb, np.int64(0))
+            if result == machine.goal:
+                return len(comb)
 
 
 def task1(input):
-    return sum(min_presses(machine, 0, 0, {}, defaultdict(int)) for machine in input)
+    return sum(min_presses(machine) for machine in input)
 
 
 def joltage_presses(machine):
