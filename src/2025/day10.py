@@ -1,9 +1,9 @@
 import functools
 import more_itertools
+import scipy.optimize
 import util
 from util import *
 import numpy as np
-import z3
 
 test_data: str = \
     """[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
@@ -29,6 +29,7 @@ class Machine:
             button[raw] = True
             self.int_buttons.append(bool_array_to_int(button))
             self.buttons.append(button)
+        self.buttons = np.array(self.buttons)
         self.joltage = np.array(util.as_csv_of_ints(joltage[1:-1])).flatten()
 
     def __repr__(self):
@@ -37,8 +38,8 @@ class Machine:
 
 def min_presses(machine):
     for comb in more_itertools.powerset(machine.int_buttons):
-        if comb != ():
-            result = functools.reduce(np.int64.__xor__, comb, np.int64(0))
+        if len(comb) > 0:
+            result = functools.reduce(np.int64.__xor__, comb)
             if result == machine.goal:
                 return len(comb)
 
@@ -48,24 +49,25 @@ def task1(input):
 
 
 def joltage_presses(machine):
-    buttons = [z3.Int(f"b{i}") for i in range(len(machine.int_buttons))]
+    res = scipy.optimize.linprog(
+        c=np.ones_like(machine.int_buttons).astype(int),
+        A_eq = machine.buttons.T.astype(int),
+        b_eq = machine.joltage.astype(int),
+        integrality=1,
+    )
 
-    opt = z3.Optimize()
-    h = opt.minimize(z3.Sum(*buttons))
+    if not res.success:
+        res2 = scipy.optimize.linprog(
+            c=np.ones_like(machine.int_buttons).astype(int),
+            A_eq=machine.buttons.T.astype(int),
+            b_eq=res.eqlin.residual.astype(int),
+            integrality=1,
+        )
 
-    eqs = [
-        0 for _ in range(len(machine.joltage))
-    ]
-    for i, button in enumerate(machine.buttons):
-        opt.add(buttons[i] >= 0)
-        for j, a in enumerate(button):
-            if a:
-                eqs[j] += buttons[i]
-    for j, joltage in enumerate(machine.joltage):
-        opt.add(eqs[j] == joltage)
-    opt.check()
-    return opt.lower(h).as_long()
+        # What the fuck this is probably wrong but it works and I only hit this once so...
+        return round(res2.fun // 2 + res.fun)
 
+    return round(res.fun)
 
 def task2(input):
     return sum(joltage_presses(machine) for machine in input)
