@@ -1,4 +1,3 @@
-import scipy
 import util
 from util import *
 import numpy as np
@@ -15,32 +14,41 @@ test_data: str = \
 .@@@@@@@@.
 @.@.@@@.@."""
 
-KERNEL = np.ones((3, 3))
+NEIGHBORS = None
 
 
 def task1(input):
-    counts = np.multiply(scipy.signal.convolve2d(input, KERNEL, mode="same"), input)
-    return np.logical_and(counts < 5, counts > 0).sum()
-
+    rolls = np.where(input)[0]
+    neighbors = rolls[:, None] + NEIGHBORS[None, :]
+    neighbor_count = np.sum(input[neighbors], axis=1)
+    return np.sum(neighbor_count < 4)
 
 def task2(input):
     total = 0
-
+    rolls = np.where(input)[0]
+    neighbors = rolls[:, None] + NEIGHBORS[None, :]
     while True:
-        counts = np.multiply(scipy.signal.convolve2d(input, KERNEL, mode="same"), input)
-
-        removed = np.logical_and(counts < 5, counts > 0)
+        neighbor_count = np.sum(input[neighbors], axis=1)
+        removed = neighbor_count < 4
         removed_count = np.sum(removed)
-
-        input = np.logical_xor(input, removed)
-
         if removed_count == 0:
-            return total
+            break
         total += removed_count
+
+        input[rolls[removed]] = False
+        neighbors = neighbors[~removed]
+        rolls = rolls[~removed]
+
+    return total
 
 
 def parse(data: str):
-    return np.array([np.fromiter(l, dtype="U1") for l in util.as_lines(data)]) == "@"
+    global NEIGHBORS
+    grid = np.array([np.fromiter(l, dtype="U1") for l in util.as_lines(data)]) == "@"
+    grid = np.pad(grid, (1, 1), constant_values=0)
+    s = len(grid)
+    NEIGHBORS = np.array([-s-1, -s, -s+1, -1, 1, s-1, s, s+1])
+    return grid.flatten()
 
 
 def main():
