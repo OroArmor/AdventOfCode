@@ -11,15 +11,15 @@ test_data: str = \
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}"""
 
 
-def bool_array_to_int(array: np.ndarray) -> int:
-    return np.sum(array * np.power(2, np.arange(len(array))))
+def pack_array(where: np.ndarray) -> int:
+    return np.sum(np.power(2, where)).astype(np.int16)
 
 
 class Machine:
     def __init__(self, line):
         goal, *raw_buttons, joltage = line.split()
 
-        self.goal = bool_array_to_int(np.array(list(goal))[1:-1] == "#")
+        self.goal = pack_array(np.where(np.array(list(goal))[1:-1] == "#")[0])
         self.buttons = []
         self.int_buttons = []
 
@@ -27,7 +27,7 @@ class Machine:
             button = np.zeros(len(goal) - 2, dtype=bool)
             raw = util.as_csv_of_ints(raw[1:-1])
             button[raw] = True
-            self.int_buttons.append(bool_array_to_int(button))
+            self.int_buttons.append(pack_array(raw))
             self.buttons.append(button)
         self.buttons = np.array(self.buttons)
         self.joltage = np.array(util.as_csv_of_ints(joltage[1:-1])).flatten()
@@ -39,7 +39,7 @@ class Machine:
 def min_presses(machine):
     for comb in more_itertools.powerset(machine.int_buttons):
         if len(comb) > 0:
-            result = functools.reduce(np.int64.__xor__, comb)
+            result = functools.reduce(np.int16.__xor__, comb)
             if result == machine.goal:
                 return len(comb)
 
@@ -49,28 +49,17 @@ def task1(input):
 
 
 def joltage_presses(machine):
-    res = scipy.optimize.linprog(
-        c=np.ones_like(machine.int_buttons).astype(int),
-        A_eq = machine.buttons.T.astype(int),
-        b_eq = machine.joltage.astype(int),
-        integrality=1,
-    )
+    A = machine.buttons.T.astype(int)
+    b = machine.joltage.astype(int)
+    c = np.ones_like(machine.int_buttons).astype(int)
+    contraints = scipy.optimize.LinearConstraint(A, b, b)
+    res = scipy.optimize.milp(c=c, constraints=contraints, integrality=1)
 
-    if not res.success:
-        res2 = scipy.optimize.linprog(
-            c=np.ones_like(machine.int_buttons).astype(int),
-            A_eq=machine.buttons.T.astype(int),
-            b_eq=res.eqlin.residual.astype(int),
-            integrality=1,
-        )
+    return res.mip_dual_bound
 
-        # What the fuck this is probably wrong but it works and I only hit this once so...
-        return round(res2.fun // 2 + res.fun)
-
-    return round(res.fun)
 
 def task2(input):
-    return sum(joltage_presses(machine) for machine in input)
+    return round(sum(joltage_presses(machine) for machine in input))
 
 
 def parse(data: str):
