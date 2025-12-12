@@ -52,7 +52,7 @@ def time_day(year, day, max_iterations: int = 1000, max_time: float = 60.0) -> T
     print(output, end="\r")
     sys.stdout.flush()
 
-    if day != 25:
+    if not (raw_day == 25 or year >= 2025 and raw_day == 12):
         task2_time, _ = time_lambda(parsed, day_module.task2, output, max_iterations, max_time)
     else:
         task2_time = 0.0
@@ -86,7 +86,7 @@ def main():
     for year in [selected_year] if selected_year else range(2015, util.CURRENT_YEAR + 1):
         print(f"y{year:>5}:   Parsing,   Part 01,   Part 02,  Combined")
         total_parse, total_task1, total_task2, total = 0, 0, 0, 0
-        for day in [selected_day] if selected_day else range(1, 25 + 1):
+        for day in [selected_day] if selected_day else range(1, (12 if year >= 2025 else 25) + 1):
             result = time_day(year, str(day), max_iterations=iterations, max_time=max_time)
             if result:
                 par, p1, p2, tot = result
