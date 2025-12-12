@@ -1,4 +1,5 @@
 import functools
+from collections import defaultdict
 import more_itertools
 import scipy.optimize
 import util
@@ -12,7 +13,10 @@ test_data: str = \
 
 
 def pack_array(where: np.ndarray) -> int:
-    return np.sum(np.power(2, where)).astype(np.int16)
+    mask = 0
+    for w in where:
+        mask |= 1 << w
+    return np.int16(mask)
 
 
 class Machine:
@@ -30,7 +34,7 @@ class Machine:
             self.int_buttons.append(pack_array(raw))
             self.buttons.append(button)
         self.buttons = np.array(self.buttons)
-        self.joltage = np.array(util.as_csv_of_ints(joltage[1:-1])).flatten()
+        self.joltage = np.array(util.as_csv_of_ints(joltage[1:-1])).astype(int).flatten()
 
     def __repr__(self):
         return f"{self.goal}: [{self.int_buttons}] | {self.joltage}"
@@ -49,13 +53,50 @@ def task1(input):
 
 
 def joltage_presses(machine):
-    A = machine.buttons.T.astype(int)
-    b = machine.joltage.astype(int)
-    c = np.ones_like(machine.int_buttons).astype(int)
-    contraints = scipy.optimize.LinearConstraint(A, b, b)
-    res = scipy.optimize.milp(c=c, constraints=contraints, integrality=1)
+    combos = defaultdict(dict)
+    combos[0] = {tuple(np.zeros_like(machine.joltage)): 0}
+    for comb in zip(more_itertools.powerset(machine.int_buttons), more_itertools.powerset(machine.buttons)):
+        ints, buttons = comb
+        result = functools.reduce(np.int16.__xor__, ints, np.int16(0))
 
-    return res.mip_dual_bound
+        if buttons:
+            pattern = buttons[0].astype(int)
+            for b in buttons[1:]:
+                pattern += b
+            pattern = tuple(pattern)
+        else:
+            pattern = (0, ) * len(machine.joltage)
+
+        if pattern not in combos[result]:
+            combos[result][pattern] = len(buttons)
+
+    cache = {
+        tuple(np.zeros_like(machine.joltage)): 0,
+    }
+
+    def recurse(joltage):
+        if tuple(joltage) in cache:
+            return cache[tuple(joltage)]
+
+        valid_to_reduce = np.where(np.logical_and(joltage % 2 == 1, joltage > 0))[0]
+        parity = pack_array(valid_to_reduce)
+        patterns = combos[parity]
+
+
+        min_recurse = np.inf
+        next_joltage = np.zeros_like(joltage)
+        for pattern, cost in patterns.items():
+            np.subtract(joltage, pattern, out=next_joltage)
+            if next_joltage.min() < 0:
+                continue
+            next_joltage //= 2
+            min_recurse = min(min_recurse, 2 * recurse(next_joltage) + cost)
+
+        cache[tuple(joltage)] = min_recurse
+        return min_recurse
+
+    result = recurse(machine.joltage)
+    return result
 
 
 def task2(input):
